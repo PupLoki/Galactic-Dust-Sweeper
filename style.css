@@ -353,19 +353,20 @@ header h1 {
 }
 
 /* Achievements */
-#achievements-section { 
-  margin-top: 6px;
+#achievements-panel{
+  min-height: 200px;
 }
-#achievements-section h2 { 
-  font-size: 1em; 
-  margin: 6px 0 4px 0;
+#achievements-panel .panel-header{
+  margin-bottom: 4px;
 }
 #achievements-list { 
   display: flex; 
   flex-direction: column; 
   gap: 3px; 
-  max-height: 120px; 
+  min-height: 120px;
+  max-height: 70vh; 
   overflow-y: auto;
+  flex: 1;
 }
 .achievement { 
   background: rgba(255,255,255,0.02); 
@@ -671,7 +672,7 @@ header h1 {
   gap:12px;
   align-items:flex-start;
 }
-#currency-panel{
+.side-panel{
   width:210px;
   background: rgba(16,22,29,0.92);
   border:1px solid rgba(127,235,216,0.1);
@@ -680,6 +681,9 @@ header h1 {
   box-shadow:0 8px 20px rgba(0,0,0,0.35);
   max-height: none;
   overflow: visible;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
 }
 #currency-panel.hidden{ display:block; }
 .panel-header{

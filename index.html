@@ -4,13 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Galactic Dust Sweeper</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="main-menu" class="overlay-menu">
     <div class="menu-card">
       <h1>Galactic Dust Sweeper</h1>
       <p class="menu-sub">Sweep the stars. Build your fleet. Rise through prestiges.</p>
+      <p class="menu-sub">Developed By PupLoki on Github</p>
       <div class="menu-actions">
         <button id="menu-start-btn" class="control-btn">Start</button>
         <button id="menu-reset-btn" class="control-btn">Reset Save</button>
@@ -27,6 +28,12 @@
     </div>
   </div>
   <div id="layout-shell">
+    <div id="achievements-panel" class="side-panel">
+      <div class="panel-header">
+        <div>Achievements</div>
+      </div>
+      <div id="achievements-list">No achievements yet.</div>
+    </div>
     <div id="game-container">
     <header>
       <h1>Galactic Dust Sweeper</h1>
@@ -573,15 +580,10 @@
         <button id="map-zone-btn" class="control-btn">Show Zone Map</button>
       </div>
     </section>
-
-    <section id="achievements-section">
-      <h2>Achievements</h2>
-      <div id="achievements-list">No achievements yet.</div>
-    </section>
     <div id="toasts" aria-live="polite" aria-atomic="true"></div>
     <div id="save-status" class="save-status hidden" aria-live="polite"></div>
     </div>
-    <div id="currency-panel">
+    <div id="currency-panel" class="side-panel">
       <div class="panel-header">
         <div>Currencies</div>
       </div>
@@ -604,7 +606,7 @@
     </div>
   </div>
 
-  <script src="js/game.js"></script>
+  <script src="game.js"></script>
 </body>
 </html>
 
