@@ -27,6 +27,15 @@
       <pre id="map-content" aria-label="Zone map"></pre>
     </div>
   </div>
+  <div id="stats-modal" class="overlay-menu hidden">
+    <div class="map-card">
+      <div class="map-card-header">
+        <div>Stats</div>
+        <button id="stats-close-btn" class="control-btn">Close</button>
+      </div>
+      <pre id="stats-content" aria-label="Game stats"></pre>
+    </div>
+  </div>
   <div id="layout-shell">
     <div id="achievements-panel" class="side-panel">
       <div class="panel-header">
@@ -49,6 +58,7 @@
         <button id="save-btn" class="control-btn">Save</button>
         <button id="load-btn" class="control-btn">Load</button>
         <button id="menu-btn" class="control-btn">Menu</button>
+        <button id="stats-btn" class="control-btn">Stats</button>
         
       </div>
       <div id="prestige-bar">
@@ -65,12 +75,12 @@
         <canvas id="zone-canvas"></canvas>
       </div>
       <div id="zone-overlay">
-        <div id="zone-name-display">Current Zone: <span id="zone-name">Planet A</span></div>
-        <button id="click-button">Sweep Dust!</button>
-      </div>
-    </section>
+      <div id="zone-name-display">Current Zone: <span id="zone-name">Planet A</span></div>
+      <button id="click-button">Sweep Dust!</button>
+    </div>
+  </section>
 
-    <section id="upgrades-section">
+  <section id="upgrades-section">
       <h2>Tools & Upgrades</h2>
       <div class="tools-grid">
         <div class="tool" data-type="basic">
@@ -640,6 +650,9 @@
       <h2>Zones</h2>
       <div class="zone-controls">
         <button id="unlock-zone-btn" disabled>Unlock Next Zone (Cost: <span id="zone-cost">1000</span> Dust)</button>
+        <div id="zone-progress" aria-label="Zone unlock progress">
+          <div id="zone-progress-fill"></div>
+        </div>
         <button id="show-zone-btn" class="control-btn">Show Current Zone</button>
         <button id="map-zone-btn" class="control-btn">Show Zone Map</button>
       </div>

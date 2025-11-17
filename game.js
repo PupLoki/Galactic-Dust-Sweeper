@@ -179,6 +179,16 @@
     { name: 'Void Rift', cost: 320000, bonus: 0.44, currency: 'Void Dust' },
     { name: 'Aurora Spire', cost: 640000, bonus: 0.52, currency: 'Aurora Dust' },
   ];
+  const zoneButtonStyles = [
+    { bg: 'linear-gradient(180deg,#6ef0df 0%,#3fb1a5 50%,#0f4c4c 100%)', shadow: '0 10px 24px rgba(79,185,173,0.3)', color: '#042023' },
+    { bg: 'linear-gradient(180deg,#8fb3ff 0%,#5f8dff 50%,#2b3f73 100%)', shadow: '0 10px 24px rgba(95,141,255,0.3)', color: '#e8f2ff' },
+    { bg: 'linear-gradient(180deg,#ffe09f 0%,#ffb347 45%,#e05a00 100%)', shadow: '0 10px 24px rgba(255,179,71,0.32)', color: '#2b1600' },
+    { bg: 'linear-gradient(180deg,#f36c6c 0%,#d94141 50%,#7a0b0b 100%)', shadow: '0 10px 24px rgba(243,108,108,0.32)', color: '#ffecec' },
+    { bg: 'linear-gradient(180deg,#9be7ff 0%,#6ef0df 50%,#1b6f7a 100%)', shadow: '0 10px 24px rgba(110,240,223,0.32)', color: '#042023' },
+    { bg: 'linear-gradient(180deg,#ffd6ff 0%,#9aa7ff 45%,#5d4fb8 100%)', shadow: '0 10px 24px rgba(154,167,255,0.32)', color: '#1f1238' },
+    { bg: 'linear-gradient(180deg,#b18cff 0%,#6a4bdc 50%,#28154e 100%)', shadow: '0 10px 24px rgba(106,75,220,0.34)', color: '#f3eaff' },
+    { bg: 'linear-gradient(180deg,#6ef0df 0%,#bfeee8 50%,#327c8d 100%)', shadow: '0 10px 24px rgba(191,238,232,0.3)', color: '#042023' },
+  ];
 
   // Music presets inspired by Tidal/Strudel patterns: chiptune shimmer over chill/lofi grooves.
   const presets = {
@@ -335,6 +345,7 @@
     unlockZoneBtn: document.getElementById('unlock-zone-btn'),
     showZoneBtn: document.getElementById('show-zone-btn'),
     mapZoneBtn: document.getElementById('map-zone-btn'),
+    zoneProgress: document.getElementById('zone-progress-fill'),
     achievementsList: document.getElementById('achievements-list'),
     toastArea: document.getElementById('toasts'),
     zoneOverlay: document.getElementById('zone-overlay'),
@@ -347,6 +358,10 @@
     mapModal: document.getElementById('map-modal'),
     mapContent: document.getElementById('map-content'),
     mapCloseBtn: document.getElementById('map-close-btn'),
+    statsModal: document.getElementById('stats-modal'),
+    statsContent: document.getElementById('stats-content'),
+    statsBtn: document.getElementById('stats-btn'),
+    statsCloseBtn: document.getElementById('stats-close-btn'),
     prestigeTitles: document.getElementById('prestige-titles'),
     prestigeTitlesPrev: document.getElementById('prestige-titles-prev'),
     prestigeTitlesNext: document.getElementById('prestige-titles-next'),
@@ -455,7 +470,7 @@
     });
     els.mapZoneBtn?.addEventListener('click', () => {
       const zone = zones[state.currentZoneIndex];
-      const map = buildZoneMap(zone?.name || 'Unknown', state.currentZoneIndex);
+      const map = buildZoneMapV2(zone?.name || 'Unknown', state.currentZoneIndex);
       if (els.mapContent && els.mapModal) {
         els.mapContent.textContent = map;
         els.mapModal.classList.remove('hidden');
@@ -494,6 +509,8 @@
       localStorage.removeItem(SAVE_KEY);
       window.location.reload();
     });
+    els.statsBtn?.addEventListener('click', showStatsModal);
+    els.statsCloseBtn?.addEventListener('click', hideStatsModal);
     updateAudioUI();
     updateClickToggleUI();
     renderToolPage();
@@ -502,6 +519,7 @@
     els.prestigeTitlesNext?.addEventListener('click', () => changePrestigeTitlesPage(1));
     els.prestigeShopPrev?.addEventListener('click', () => changePrestigeShopPage(-1));
     els.prestigeShopNext?.addEventListener('click', () => changePrestigeShopPage(1));
+    applyZoneButtonTheme(state.currentZoneIndex);
   }
 
   function handleClick() {
@@ -563,6 +581,17 @@
   function getUpgradeCost(tool, upgrade) {
     const level = tool.upgrades[upgrade] ?? 0;
     return Math.ceil((tool.baseCost || tool.cost) * 0.6 * (level + 1));
+  }
+
+  function applyZoneButtonTheme(idx) {
+    if (!els.clickButton) return;
+    const theme = zoneButtonStyles[idx] || zoneButtonStyles[0];
+    els.clickButton.style.backgroundImage = theme.bg;
+    els.clickButton.style.backgroundColor = 'transparent';
+    els.clickButton.style.backgroundRepeat = 'no-repeat';
+    els.clickButton.style.backgroundSize = '100% 100%';
+    els.clickButton.style.boxShadow = theme.shadow || '0 10px 24px rgba(79,185,173,0.22)';
+    els.clickButton.style.color = theme.color || '#042023';
   }
 
   function prestigeMult(keys) {
@@ -737,6 +766,17 @@
     const currentZone = zones[state.currentZoneIndex];
     const nextZone = zones[state.currentZoneIndex + 1];
     setText(els.zoneName, 'zone-name', currentZone?.name || 'Unknown');
+    applyZoneButtonTheme(state.currentZoneIndex);
+    if (nextZone && els.zoneProgress) {
+      const zoneCurrencyLabel = getCurrencyLabel(state.currentZoneIndex);
+      const activeDust = getCurrencyBalance(state.currentZoneIndex);
+      const pct = Math.max(0, Math.min(1, activeDust / (nextZone.cost || 1)));
+      els.zoneProgress.style.width = `${(pct * 100).toFixed(1)}%`;
+      els.zoneProgress.setAttribute('aria-label', `Progress to next zone: ${Math.round(pct * 100)}% using ${zoneCurrencyLabel}`);
+    } else if (els.zoneProgress) {
+      els.zoneProgress.style.width = '100%';
+      els.zoneProgress.setAttribute('aria-label', 'Maxed zones');
+    }
     if (nextZone) {
       const zoneCurrencyLabel = getCurrencyLabel(state.currentZoneIndex);
       setText(els.zoneCost, 'zone-cost', `${formatNumber(nextZone.cost, 0)} ${zoneCurrencyLabel}`);
@@ -753,10 +793,13 @@
     setDisabled(els.prestigeBtn, 'prestige-btn', gainReady <= 0);
     updatePrestigeProgress(gainReady);
     updatePrestigeTitleUI();
-
     renderAchievements();
     renderCurrencies();
     renderPrestigeTitles();
+    // Keep stats view in sync when open
+    if (!els.statsModal || !els.statsModal.classList.contains('hidden')) {
+      renderStats();
+    }
   }
 
   function renderAchievements(force = false) {
@@ -1251,6 +1294,52 @@
     renderPrestigeShop();
   }
 
+  function showStatsModal() {
+    renderStats();
+    if (els.statsModal) els.statsModal.classList.remove('hidden');
+  }
+
+  function hideStatsModal() {
+    if (els.statsModal) els.statsModal.classList.add('hidden');
+  }
+
+  function renderStats() {
+    if (!els.statsContent) return;
+    const lines = [];
+    lines.push(`Zone: ${zones[state.currentZoneIndex]?.name || 'Unknown'}`);
+    lines.push(`Dust per click: ${formatNumber(state.dustPerClick, 2)}`);
+    lines.push(`Passive/sec: ${formatNumber(state.passivePerSecond, 2)}`);
+    lines.push(`Auto clicks/sec: ${formatNumber(state.autoClicksPerSecond, 2)}`);
+    lines.push(`Total effective/sec: ${formatNumber(state.totalPerSecond || 0, 2)}`);
+    lines.push('');
+    lines.push(`Total clicks: ${formatNumber(state.totalClicks, 0)}`);
+    lines.push(`Total earned (run): ${formatNumber(state.totalDustEarned, 0)}`);
+    lines.push(`Lifetime dust: ${formatNumber(state.lifetimeDust, 0)}`);
+    lines.push('');
+    lines.push(`Prestige: ${state.prestige}`);
+    lines.push(`Prestige title: ${prestigeTitles[getCurrentPrestigeTitleIndex()]}`);
+    lines.push(`Prestige mult: x${(getPrestigeMultiplier() || 1).toFixed(2)}`);
+    lines.push(`Achievement mult: x${(getAchievementMultiplier() || 1).toFixed(2)}`);
+    lines.push('');
+    lines.push('Per-currency:');
+    zones.forEach((zone, idx) => {
+      const bal = getCurrencyBalance(idx);
+      const perSec = state.currencyPerSecond?.[idx] || 0;
+      const clicks = state.currencyClicks?.[idx] || 0;
+      lines.push(`- ${zone.name}: ${formatNumber(bal, 0)} | ${formatNumber(perSec, 2)}/s | ${formatNumber(clicks, 2)} clicks/s`);
+    });
+    lines.push('');
+    lines.push('Prestige Upgrades:');
+    Object.entries(prestigeUpgrades).forEach(([key, cfg]) => {
+      const lvl = state.prestigeUpgrades[key] || 0;
+      if (lvl > 0) {
+        const label = cfg.label || key;
+        lines.push(`- ${label}: Lv.${lvl}`);
+      }
+    });
+    els.statsContent.textContent = lines.join('\n');
+  }
+
   function getAchievementMultiplier() {
     return state.achievementMultiplier || 1;
   }
@@ -1345,6 +1434,84 @@
       '= Warp lanes  * Debris  ~ Dust wisps  ·/+/· Space'
     ].join('\n');
     return `${name} [Zone ${idx + 1}]\n${legend}\n${top}\n${framed.join('\n')}\n${bottom}`;
+  }
+
+  // Cleaner ASCII zone map override
+  function buildZoneMapV2(name, idx) {
+    const w = 36;
+    const h = 16;
+    let seed = (idx + 1) * 9137;
+    const rng = () => {
+      seed = (seed * 1664525 + 1013904223) >>> 0;
+      return seed / 0xffffffff;
+    };
+    const grid = Array.from({ length: h }, () => Array.from({ length: w }, () => ' '));
+    const set = (x, y, ch) => { if (x >= 0 && x < w && y >= 0 && y < h) grid[y][x] = ch; };
+
+    // Borders
+    for (let x = 0; x < w; x++) { set(x, 0, '-'); set(x, h - 1, '-'); }
+    for (let y = 0; y < h; y++) { set(0, y, '|'); set(w - 1, y, '|'); }
+    set(0, 0, '+'); set(w - 1, 0, '+'); set(0, h - 1, '+'); set(w - 1, h - 1, '+');
+
+    // Starscape with varied glyphs
+    const starGlyphs = ['.', '+', '*', 'x', 'o'];
+    const starCount = 95;
+    for (let i = 0; i < starCount; i++) {
+      const x = 1 + Math.floor(rng() * (w - 2));
+      const y = 1 + Math.floor(rng() * (h - 2));
+      set(x, y, starGlyphs[Math.floor(rng() * starGlyphs.length)]);
+    }
+
+    // Nebula ribbons
+    for (let i = 0; i < 3; i++) {
+      const yBase = 3 + i * 4 + rng() * 2;
+      for (let x = 2; x < w - 2; x++) {
+        const y = Math.round(yBase + Math.sin((x + idx) * 0.4) * 1.2);
+        if (rng() > 0.2) set(x, y, '~');
+      }
+    }
+
+    const cx = Math.floor(w / 2);
+    const cy = Math.floor(h / 2);
+    set(cx, cy, 'Z');
+
+    // Planet cluster left
+    const px = 3 + Math.floor(rng() * 4);
+    const py = 3 + Math.floor(rng() * (h - 6));
+    set(px, py, '('); set(px + 1, py, 'O'); set(px + 2, py, ')');
+
+    // Warp gates and lanes
+    const nodes = 6;
+    for (let i = 0; i < nodes; i++) {
+      const angle = rng() * Math.PI * 2;
+      const dist = 4 + rng() * 9;
+      const nx = cx + Math.floor(Math.cos(angle) * dist);
+      const ny = cy + Math.floor(Math.sin(angle) * dist);
+      set(nx, ny, i % 2 ? '#' : 'O');
+      const steps = 12;
+      for (let s = 0; s <= steps; s++) {
+        const t = s / steps;
+        const tx = Math.round(cx + (nx - cx) * t + Math.sin(t * Math.PI * 2) * 0.3);
+        const ty = Math.round(cy + (ny - cy) * t);
+        set(tx, ty, rng() > 0.4 ? '=' : '-');
+      }
+    }
+
+    // Debris arcs
+    for (let i = 0; i < 4; i++) {
+      const rx = 8 + Math.floor(rng() * (w - 16));
+      const ry = 2 + Math.floor(rng() * (h - 4));
+      set(rx, ry, '/'); set(rx + 1, ry, '^'); set(rx + 2, ry, '\\');
+    }
+
+    const label = `${name} [Zone ${idx + 1}]`;
+    const top = '+' + '-'.repeat(w) + '+';
+    const body = grid.map(row => '|' + row.join('') + '|').join('\n');
+    const legend = [
+      'Legend: Z=You  O/#=Stations  ()=Planet',
+      "Symbols: *=Star  ~=Nebula  -=Lane"
+    ].join('\n');
+    return `${label}\n${legend}\n${top}\n${body}\n${top}`;
   }
 
   function showMenu() {
