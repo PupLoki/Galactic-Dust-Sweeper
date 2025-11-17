@@ -117,6 +117,10 @@
     riftExcavator: { label: 'Rift Excavator', cost: 14500000, increment: 42000, kind: 'passive' },
     auroraWeaver: { label: 'Aurora Weaver', cost: 19000000, increment: 52000, kind: 'passive' },
     stellarEmpress: { label: 'Stellar Empress', cost: 25000000, increment: 68000, kind: 'autoClick' },
+    cometHarvester: { label: 'Comet Harvester', cost: 32000000, increment: 90000, kind: 'click' },
+    auroraArray: { label: 'Aurora Array', cost: 42000000, increment: 140000, kind: 'passive' },
+    quantumArmada: { label: 'Quantum Armada', cost: 52000000, increment: 105000, kind: 'autoClick' },
+    celestialFoundry: { label: 'Celestial Foundry', cost: 68000000, increment: 180000, kind: 'passive' },
   };
 
   // Map tools to the currency zone they cost from (defaults to Zone 0/Dust if not listed)
@@ -159,6 +163,10 @@
     // Zone 7 (Aurora Dust)
     auroraWeaver: 7,
     stellarEmpress: 7,
+    cometHarvester: 7,
+    auroraArray: 7,
+    quantumArmada: 7,
+    celestialFoundry: 7,
   };
 
   const zones = [
