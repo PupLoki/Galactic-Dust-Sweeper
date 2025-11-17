@@ -13,6 +13,12 @@
     zoneBonus: { label: 'Zonal Synergy', cost: 5, effect: 0.08, description: '+8% zone bonus per level' },
     globalBoost: { label: 'Continuum Surge', cost: 6, effect: 0.1, description: '+10% all gains per level' },
     prestigeYield: { label: 'Ascendant Yield', cost: 7, effect: 0.12, description: '+12% prestige gain per level' },
+    tapSurge: { label: 'Tap Surge', cost: 5, effect: 0.18, description: '+18% dust per click per level' },
+    tempoFlux: { label: 'Tempo Flux', cost: 5, effect: 0.15, description: '+15% passive/sec per level' },
+    swarmOverclock: { label: 'Swarm Overclock', cost: 5, effect: 0.14, description: '+14% auto clicks/sec per level' },
+    macroEconomy: { label: 'Macro Economy', cost: 6, effect: 0.08, description: '+8% all gains per level' },
+    windfall: { label: 'Windfall', cost: 7, effect: 0.14, description: '+14% prestige gain per level' },
+    cartography: { label: 'Zonal Cartography', cost: 4, effect: 0.12, description: '+12% zone bonus per level' },
   };
   const prestigeTitles = [
     'Initiate Sweeper',
@@ -337,6 +343,9 @@
     prestigeTitlesPrev: document.getElementById('prestige-titles-prev'),
     prestigeTitlesNext: document.getElementById('prestige-titles-next'),
     prestigeTitlesPage: document.getElementById('prestige-titles-page'),
+    prestigeShopPrev: document.getElementById('prestige-shop-prev'),
+    prestigeShopNext: document.getElementById('prestige-shop-next'),
+    prestigeShopPage: document.getElementById('prestige-shop-page'),
   };
 
   const toolUI = {};
@@ -346,6 +355,7 @@
   let achievementsDirty = true;
   let saveStatusTimer = null;
   const prestigeTitlesPager = { page: 0, pageSize: 5, totalPages: 1 };
+  const prestigeShopPager = { page: 0, pageSize: 4, totalPages: 1 };
 
   // Initialize currency buckets per zone
   zones.forEach((zone, idx) => {
@@ -482,6 +492,8 @@
     renderPrestigeTitles();
     els.prestigeTitlesPrev?.addEventListener('click', () => changePrestigeTitlesPage(-1));
     els.prestigeTitlesNext?.addEventListener('click', () => changePrestigeTitlesPage(1));
+    els.prestigeShopPrev?.addEventListener('click', () => changePrestigeShopPage(-1));
+    els.prestigeShopNext?.addEventListener('click', () => changePrestigeShopPage(1));
   }
 
   function handleClick() {
@@ -545,6 +557,14 @@
     return Math.ceil((tool.baseCost || tool.cost) * 0.6 * (level + 1));
   }
 
+  function prestigeMult(keys) {
+    return keys.reduce((mult, key) => {
+      const lvl = state.prestigeUpgrades[key] || 0;
+      const eff = prestigeUpgrades[key]?.effect || 0;
+      return mult * (1 + lvl * eff);
+    }, 1);
+  }
+
   function recalcProduction() {
     const activeZone = state.currentZoneIndex;
     const addContribution = (map, zone, value) => {
@@ -582,10 +602,10 @@
     state.dustPerClick = dpc;
     state.passivePerSecond = passive;
     state.autoClicksPerSecond = autoClicks;
-    const prestigeClickMult = 1 + (state.prestigeUpgrades.clickBoost || 0) * prestigeUpgrades.clickBoost.effect;
-    const prestigePassiveMult = 1 + (state.prestigeUpgrades.passiveBoost || 0) * prestigeUpgrades.passiveBoost.effect;
-    const prestigeAutoMult = 1 + (state.prestigeUpgrades.autoBoost || 0) * prestigeUpgrades.autoBoost.effect;
-    const prestigeGlobalMult = 1 + (state.prestigeUpgrades.globalBoost || 0) * prestigeUpgrades.globalBoost.effect;
+    const prestigeClickMult = prestigeMult(['clickBoost', 'tapSurge']);
+    const prestigePassiveMult = prestigeMult(['passiveBoost', 'tempoFlux']);
+    const prestigeAutoMult = prestigeMult(['autoBoost', 'swarmOverclock']);
+    const prestigeGlobalMult = prestigeMult(['globalBoost', 'macroEconomy']);
     state.dustPerClick = dpc * prestigeClickMult * prestigeGlobalMult;
     state.passivePerSecond = passive * prestigePassiveMult * prestigeGlobalMult;
     state.autoClicksPerSecond = autoClicks * prestigeAutoMult * prestigeGlobalMult;
@@ -604,7 +624,7 @@
   function prestigeAvailable() {
     const effective = Math.max(0, state.lifetimeDust - 50000); // first 50k is free runway
     const baseGain = Math.pow(effective / 150000, 0.7);
-    const gainMult = 1 + (state.prestigeUpgrades.prestigeYield || 0) * (prestigeUpgrades.prestigeYield?.effect || 0);
+    const gainMult = prestigeMult(['prestigeYield', 'windfall']);
     return Math.floor(baseGain * gainMult);
   }
 
@@ -655,7 +675,7 @@
   function addCurrency(zoneIndex, amount) {
     if (!Number.isFinite(amount) || amount <= 0) return;
     const zone = zones[zoneIndex] || {};
-    const prestigeZoneMult = 1 + (state.prestigeUpgrades.zoneBonus || 0) * (prestigeUpgrades.zoneBonus?.effect || 0);
+    const prestigeZoneMult = prestigeMult(['zoneBonus', 'cartography']);
     const gained = amount * getPrestigeMultiplier() * getAchievementMultiplier() * (1 + (zone.bonus || 0) + (prestigeZoneMult - 1));
     const key = currencyKey(zoneIndex);
     state.currencies[key] = (state.currencies[key] || 0) + gained;
@@ -1059,7 +1079,12 @@
   function renderPrestigeShop() {
     if (!els.prestigeShop) return;
     const frag = document.createDocumentFragment();
-    Object.entries(prestigeUpgrades).forEach(([key, config]) => {
+    const entries = Object.entries(prestigeUpgrades);
+    prestigeShopPager.totalPages = Math.max(1, Math.ceil(entries.length / prestigeShopPager.pageSize));
+    prestigeShopPager.page = Math.max(0, Math.min(prestigeShopPager.page, prestigeShopPager.totalPages - 1));
+    const start = prestigeShopPager.page * prestigeShopPager.pageSize;
+    const slice = entries.slice(start, start + prestigeShopPager.pageSize);
+    slice.forEach(([key, config]) => {
       const row = document.createElement('div');
       row.className = 'prestige-upgrade';
       const title = document.createElement('div');
@@ -1096,6 +1121,11 @@
       frag.appendChild(row);
     });
     els.prestigeShop.replaceChildren(frag);
+    if (els.prestigeShopPage) {
+      els.prestigeShopPage.textContent = `${prestigeShopPager.page + 1}/${prestigeShopPager.totalPages}`;
+    }
+    if (els.prestigeShopPrev) els.prestigeShopPrev.disabled = prestigeShopPager.page === 0;
+    if (els.prestigeShopNext) els.prestigeShopNext.disabled = prestigeShopPager.page >= prestigeShopPager.totalPages - 1;
   }
 
   function toggleCurrencyPanel(show) {
@@ -1144,7 +1174,7 @@
   function getPrestigeMultiplier() {
     const base = 1 + state.prestige * 0.12;
     const bonus = Math.sqrt(state.prestige) * 0.05;
-    const shopMult = 1 + (state.prestigeUpgrades.globalBoost || 0) * (prestigeUpgrades.globalBoost?.effect || 0);
+    const shopMult = prestigeMult(['globalBoost', 'macroEconomy']);
     return (base + bonus) * shopMult;
   }
 
@@ -1206,6 +1236,11 @@
   function changePrestigeTitlesPage(delta) {
     prestigeTitlesPager.page = Math.max(0, Math.min(prestigeTitlesPager.page + delta, prestigeTitlesPager.totalPages - 1));
     renderPrestigeTitles();
+  }
+
+  function changePrestigeShopPage(delta) {
+    prestigeShopPager.page = Math.max(0, Math.min(prestigeShopPager.page + delta, prestigeShopPager.totalPages - 1));
+    renderPrestigeShop();
   }
 
   function getAchievementMultiplier() {
@@ -1362,17 +1397,42 @@
 
   function playClickTone(ctx) {
     const now = ctx.currentTime;
-    const osc = ctx.createOscillator();
+    const oscA = ctx.createOscillator(); // fundamental
+    const oscB = ctx.createOscillator(); // harmonic sparkle
+    const noise = ctx.createBufferSource();
+    const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.05, ctx.sampleRate);
+    const data = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.25;
+    noise.buffer = noiseBuffer;
+
     const gain = ctx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(900, now);
-    osc.frequency.exponentialRampToValueAtTime(240, now + 0.12);
-    gain.gain.setValueAtTime(0.001, now);
-    gain.gain.exponentialRampToValueAtTime(0.16, now + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.0005, now + 0.2);
-    osc.connect(gain).connect(ctx.destination); // send directly, independent of BGM pump
-    osc.start(now);
-    osc.stop(now + 0.22);
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(1400, now);
+    lp.frequency.exponentialRampToValueAtTime(800, now + 0.09);
+
+    oscA.type = 'sine';
+    oscB.type = 'square';
+    oscA.frequency.setValueAtTime(520, now);
+    oscB.frequency.setValueAtTime(820, now);
+    oscA.frequency.exponentialRampToValueAtTime(280, now + 0.12);
+    oscB.frequency.exponentialRampToValueAtTime(420, now + 0.1);
+
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.1, now + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.00025, now + 0.16);
+
+    oscA.connect(gain);
+    oscB.connect(gain);
+    noise.connect(gain);
+    gain.connect(lp).connect(ctx.destination); // send directly, independent of BGM pump
+
+    oscA.start(now);
+    oscB.start(now);
+    noise.start(now);
+    oscA.stop(now + 0.18);
+    oscB.stop(now + 0.16);
+    noise.stop(now + 0.07);
   }
 
   // --- Coded music via Web Audio ---
