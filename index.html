@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galactic Dust Sweeper</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="main-menu" class="overlay-menu">
+    <div class="menu-card">
+      <h1>Galactic Dust Sweeper</h1>
+      <p class="menu-sub">Sweep the stars. Build your fleet. Rise through prestiges.</p>
+      <div class="menu-actions">
+        <button id="menu-start-btn" class="control-btn">Start</button>
+        <button id="menu-reset-btn" class="control-btn">Reset Save</button>
+      </div>
+    </div>
+  </div>
+  <div id="map-modal" class="overlay-menu hidden">
+    <div class="map-card">
+      <div class="map-card-header">
+        <div>Zone Map</div>
+        <button id="map-close-btn" class="control-btn">Close</button>
+      </div>
+      <pre id="map-content" aria-label="Zone map"></pre>
+    </div>
+  </div>
+  <div id="layout-shell">
+    <div id="game-container">
+    <header>
+      <h1>Galactic Dust Sweeper</h1>
+      <div id="dust-counter"><span id="currency-label">Dust</span>: <span id="dust-amount">0</span></div>
+      <div id="stats">
+        <div class="stat">Per Click: <span id="dpc">1</span></div>
+        <div class="stat">Per Second: <span id="dps">0</span></div>
+        <div class="stat">Auto Clicks/s: <span id="auto-cps">0</span></div>
+      </div>
+      <div id="header-controls">
+        <button id="bgm-toggle-btn" class="control-btn">BGM: On</button>
+        <button id="click-toggle-btn" class="control-btn">Click: On</button>
+        <button id="save-btn" class="control-btn">Save</button>
+        <button id="load-btn" class="control-btn">Load</button>
+        <button id="menu-btn" class="control-btn">Menu</button>
+        
+      </div>
+      <div id="prestige-bar">
+        <span id="prestige-display">Prestige: <strong id="prestige-amount">0</strong> <span id="prestige-mult">(+0%)</span> · <span id="prestige-title" class="prestige-title">Initiate Sweeper</span></span>
+        <div id="prestige-progress">
+          <div id="prestige-progress-fill"></div>
+        </div>
+        <button id="prestige-btn" class="prestige-btn">Prestige</button>
+      </div>
+    </header>
+
+    <section id="zone-section">
+      <div id="zone-bg">
+        <canvas id="zone-canvas"></canvas>
+      </div>
+      <div id="zone-overlay">
+        <div id="zone-name-display">Current Zone: <span id="zone-name">Planet A</span></div>
+        <button id="click-button">Sweep Dust!</button>
+      </div>
+    </section>
+
+    <section id="upgrades-section">
+      <h2>Tools & Upgrades</h2>
+      <div class="tools-grid">
+        <div class="tool" data-type="basic">
+          <div class="icon" aria-hidden="true">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="10" width="14" height="3" rx="1" fill="#7ff3ea" />
+              <rect x="6" y="5" width="2" height="7" rx="1" fill="#bfeee8" transform="rotate(-20 6 5)" />
+            </svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Basic Sweeper</div>
+            <button class="tool-btn">Buy (+1 dust/click)</button>
+              <div class="tool-meta">Cost: <span class="cost">20</span> | Level: <span class="level">0</span></div>
+              <div class="upgrades">
+                <button class="upgrade-btn" data-tool="basic" data-upgrade="efficiency">Efficiency</button>
+                <button class="upgrade-btn" data-tool="basic" data-upgrade="speed">Speed</button>
+                <button class="upgrade-btn" data-tool="basic" data-upgrade="capacity">Capacity</button>
+              </div>
+          </div>
+        </div>
+        <!-- New tools -->
+        <div class="tool" data-type="superVac">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h16v4H4z" fill="#7ff3ea"/><rect x="6" y="10" width="12" height="8" rx="2" fill="#bfeee8"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Super Vac</div>
+            <button class="tool-btn">Buy (+10 dust/click)</button>
+            <div class="tool-meta">Cost: <span class="cost">500</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="superVac" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="superVac" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="superVac" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="magnet">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M6 3v7a6 6 0 0 0 12 0V3" fill="#58cdbf"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Magnetic Net</div>
+            <button class="tool-btn">Buy (+25 dust/click)</button>
+            <div class="tool-meta">Cost: <span class="cost">1200</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="magnet" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="magnet" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="magnet" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="autoDrone">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3" fill="#7ff3ea"/><path d="M4 18c4-3 12-3 16 0" stroke="#bfeee8" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Auto Drone</div>
+            <button class="tool-btn">Buy (+50 clicks/sec)</button>
+            <div class="tool-meta">Cost: <span class="cost">3500</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="autoDrone" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="autoDrone" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="autoDrone" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="solarArray">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="12" rx="2" fill="#ffd66b"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Solar Array</div>
+            <button class="tool-btn">Buy (+150 dust/sec)</button>
+            <div class="tool-meta">Cost: <span class="cost">9000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="solarArray" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="solarArray" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="solarArray" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="quantumNet">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 12h16" stroke="#6ef0df" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Quantum Net</div>
+            <button class="tool-btn">Buy (+500 dust/click)</button>
+            <div class="tool-meta">Cost: <span class="cost">25000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="quantumNet" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="quantumNet" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="quantumNet" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="autoClicker">
+          <div class="icon" aria-hidden="true">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="7" cy="12" r="3" fill="#7ff3ea" />
+              <circle cx="12" cy="8" r="2" fill="#bfeee8" />
+              <circle cx="17" cy="14" r="2" fill="#58cdbf" />
+            </svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Auto Clicker</div>
+            <button class="tool-btn">Buy (+1 click/sec)</button>
+            <div class="tool-meta">Cost: <span class="cost">100</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="autoClicker" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="autoClicker" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="autoClicker" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="laser">
+          <div class="icon" aria-hidden="true">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 21L21 3" stroke="#7ff3ea" stroke-width="2" stroke-linecap="round" />
+              <path d="M7 11L13 5" stroke="#bfeee8" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Laser Sweeper</div>
+            <button class="tool-btn">Buy (+5 dust/click)</button>
+            <div class="tool-meta">Cost: <span class="cost">200</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="laser" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="laser" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="laser" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="ionScoop">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7" stroke="#6ef0df" stroke-width="2"/><path d="M12 5v7l4 3" stroke="#bfeee8" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Ion Scoop</div>
+            <button class="tool-btn">Buy (+800 dust/click)</button>
+            <div class="tool-meta">Cost: <span class="cost">40000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="ionScoop" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="ionScoop" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="ionScoop" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="nebulaHarvester">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M5 16c0-4 14-4 14 0" stroke="#ffd66b" stroke-width="2" stroke-linecap="round"/><circle cx="8" cy="11" r="2" fill="#7ff3ea"/><circle cx="16" cy="9" r="2.5" fill="#bfeee8"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Nebula Harvester</div>
+            <button class="tool-btn">Buy (+400 dust/sec)</button>
+            <div class="tool-meta">Cost: <span class="cost">60000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="nebulaHarvester" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="nebulaHarvester" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="nebulaHarvester" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="warpCollector">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 12c5-6 11-6 16 0" stroke="#7ff3ea" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="2" fill="#bfeee8"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Warp Collector</div>
+            <button class="tool-btn">Buy (+120 clicks/sec)</button>
+            <div class="tool-meta">Cost: <span class="cost">85000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="warpCollector" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="warpCollector" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="warpCollector" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="darkMatter">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="5" fill="#0b0c10" stroke="#6ef0df" stroke-width="2"/><circle cx="12" cy="12" r="2" fill="#6ef0df"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Dark Matter Siphon</div>
+            <button class="tool-btn">Buy (+1200 dust/sec)</button>
+            <div class="tool-meta">Cost: <span class="cost">120000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="darkMatter" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="darkMatter" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="darkMatter" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="stellarBroom">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M5 18l9-9" stroke="#ffd66b" stroke-width="2" stroke-linecap="round"/><path d="M9 14l4-4" stroke="#7ff3ea" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Stellar Broom</div>
+            <button class="tool-btn">Buy (+2000 dust/click)</button>
+            <div class="tool-meta">Cost: <span class="cost">180000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="stellarBroom" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="stellarBroom" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="stellarBroom" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="plasmaRake">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M6 18l12-8" stroke="#bfeee8" stroke-width="2" stroke-linecap="round"/><path d="M9 6l6 12" stroke="#7ff3ea" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Plasma Rake</div>
+            <button class="tool-btn">Buy (+2800 dust/click)</button>
+            <div class="tool-meta">Cost: <span class="cost">240000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="plasmaRake" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="plasmaRake" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="plasmaRake" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="gravityWell">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="6" stroke="#58cdbf" stroke-width="2"/><circle cx="12" cy="12" r="2" fill="#ffd66b"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Gravity Well</div>
+            <button class="tool-btn">Buy (+3600 dust/sec)</button>
+            <div class="tool-meta">Cost: <span class="cost">320000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="gravityWell" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="gravityWell" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="gravityWell" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="chronoClicker">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="6" stroke="#7ff3ea" stroke-width="2"/><path d="M12 12l3-2" stroke="#ffd66b" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Chrono Clicker</div>
+            <button class="tool-btn">Buy (+500 clicks/sec)</button>
+            <div class="tool-meta">Cost: <span class="cost">450000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="chronoClicker" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="chronoClicker" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="chronoClicker" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="photonArray">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14" stroke="#7ff3ea" stroke-width="2" stroke-linecap="round"/><path d="M12 5v14" stroke="#bfeee8" stroke-width="1.5"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Photon Array</div>
+            <button class="tool-btn">Buy (+5200 dust/sec)</button>
+            <div class="tool-meta">Cost: <span class="cost">600000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="photonArray" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="photonArray" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="photonArray" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="antimatterMesh">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="5" y="5" width="14" height="14" rx="3" stroke="#6ef0df" stroke-width="2"/><path d="M8 8l8 8M16 8l-8 8" stroke="#bfeee8" stroke-width="1.5"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Antimatter Mesh</div>
+            <button class="tool-btn">Buy (+7200 dust/click)</button>
+            <div class="tool-meta">Cost: <span class="cost">800000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="antimatterMesh" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="antimatterMesh" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="antimatterMesh" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="singularityNet">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7" stroke="#ffd66b" stroke-width="2"/><path d="M5 12h14M12 5v14" stroke="#7ff3ea" stroke-width="1.5"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Singularity Net</div>
+            <button class="tool-btn">Buy (+9500 dust/click)</button>
+            <div class="tool-meta">Cost: <span class="cost">1050000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="singularityNet" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="singularityNet" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="singularityNet" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="quantumVacuum">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="7" y="4" width="10" height="16" rx="3" stroke="#6ef0df" stroke-width="2"/><path d="M9 8h6" stroke="#bfeee8" stroke-width="1.5"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Quantum Vacuum</div>
+            <button class="tool-btn">Buy (+900 clicks/sec)</button>
+            <div class="tool-meta">Cost: <span class="cost">1400000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="quantumVacuum" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="quantumVacuum" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="quantumVacuum" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="starForge">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 3l2 6h6l-5 3.5L17 21l-5-3.5L7 21l2-8.5L4 9h6z" stroke="#ffd66b" stroke-width="1.5"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Star Forge</div>
+            <button class="tool-btn">Buy (+12000 dust/sec)</button>
+            <div class="tool-meta">Cost: <span class="cost">1800000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="starForge" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="starForge" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="starForge" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="riftEngine">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 12c4-5 12-5 16 0" stroke="#7ff3ea" stroke-width="2" stroke-linecap="round"/><path d="M12 5v14" stroke="#ffd66b" stroke-width="1.5"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Rift Engine</div>
+            <button class="tool-btn">Buy (+15000 dust/click)</button>
+            <div class="tool-meta">Cost: <span class="cost">2300000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="riftEngine" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="riftEngine" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="riftEngine" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="alienConsortium">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="8" cy="10" r="3" fill="#7ff3ea"/><circle cx="16" cy="10" r="3" fill="#bfeee8"/><path d="M6 16c4-2 8-2 12 0" stroke="#58cdbf" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Alien Consortium</div>
+            <button class="tool-btn">Buy (+18000 dust/sec)</button>
+            <div class="tool-meta">Cost: <span class="cost">3000000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="alienConsortium" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="alienConsortium" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="alienConsortium" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="cosmicOverseer">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3" stroke="#6ef0df" stroke-width="2"/><path d="M5 18c4-2.5 10-2.5 14 0" stroke="#bfeee8" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Cosmic Overseer</div>
+            <button class="tool-btn">Buy (+1400 clicks/sec)</button>
+            <div class="tool-meta">Cost: <span class="cost">3800000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="cosmicOverseer" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="cosmicOverseer" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="cosmicOverseer" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- New late-zone tools -->
+        <div class="tool" data-type="starlitSail">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M6 19l12-7-8-6z" stroke="#ffd66b" stroke-width="1.6" fill="rgba(255,214,107,0.15)"/><path d="M6 19h12" stroke="#7ff3ea" stroke-width="1.6"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Starlit Sail</div>
+            <button class="tool-btn">Buy (+21000 dust/sec)</button>
+            <div class="tool-meta">Cost: <span class="cost">5200000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="starlitSail" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="starlitSail" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="starlitSail" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="nebulaCycler">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7" stroke="#6ef0df" stroke-width="2"/><path d="M8 10l4 2 4-2-4 6z" fill="#7ff3ea"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Nebula Cycler</div>
+            <button class="tool-btn">Buy (+26000 clicks/sec)</button>
+            <div class="tool-meta">Cost: <span class="cost">7600000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="nebulaCycler" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="nebulaCycler" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="nebulaCycler" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="voidHarvester">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7" fill="rgba(127,243,234,0.12)" stroke="#7ff3ea" stroke-width="1.6"/><path d="M9 9l6 6M15 9l-6 6" stroke="#ffd66b" stroke-width="1.2"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Void Harvester</div>
+            <button class="tool-btn">Buy (+32000 dust/click)</button>
+            <div class="tool-meta">Cost: <span class="cost">10500000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="voidHarvester" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="voidHarvester" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="voidHarvester" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="riftExcavator">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M5 18l7-12 7 12" stroke="#bfeee8" stroke-width="1.8"/><circle cx="12" cy="14" r="2.2" fill="#6ef0df"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Rift Excavator</div>
+            <button class="tool-btn">Buy (+42000 dust/sec)</button>
+            <div class="tool-meta">Cost: <span class="cost">14500000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="riftExcavator" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="riftExcavator" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="riftExcavator" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="auroraWeaver">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 16c4-6 12-6 16 0" stroke="#7ff3ea" stroke-width="1.6"/><path d="M6 12c3-4 9-4 12 0" stroke="#ffd66b" stroke-width="1.2"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Aurora Weaver</div>
+            <button class="tool-btn">Buy (+52000 dust/sec)</button>
+            <div class="tool-meta">Cost: <span class="cost">19000000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="auroraWeaver" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="auroraWeaver" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="auroraWeaver" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool" data-type="stellarEmpress">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 4l2.5 5L20 10l-4 3.5L17 20l-5-3-5 3 1-6.5L4 10l5.5-1z" stroke="#bfeee8" stroke-width="1.4" fill="rgba(127,243,234,0.08)"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-title">Stellar Empress</div>
+            <button class="tool-btn">Buy (+68000 clicks/sec)</button>
+            <div class="tool-meta">Cost: <span class="cost">25000000</span> | Level: <span class="level">0</span></div>
+            <div class="upgrades">
+              <button class="upgrade-btn" data-tool="stellarEmpress" data-upgrade="efficiency">Efficiency</button>
+              <button class="upgrade-btn" data-tool="stellarEmpress" data-upgrade="speed">Speed</button>
+              <button class="upgrade-btn" data-tool="stellarEmpress" data-upgrade="capacity">Capacity</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tools-pagination">
+        <button id="tool-page-prev" class="control-btn">Prev</button>
+        <span id="tool-page-label">Page 1/1</span>
+        <button id="tool-page-next" class="control-btn">Next</button>
+      </div>
+    </section>
+
+    <section id="zones-section">
+      <h2>Zones</h2>
+      <div class="zone-controls">
+        <button id="unlock-zone-btn" disabled>Unlock Next Zone (Cost: <span id="zone-cost">1000</span> Dust)</button>
+        <button id="show-zone-btn" class="control-btn">Show Current Zone</button>
+        <button id="map-zone-btn" class="control-btn">Show Zone Map</button>
+      </div>
+    </section>
+
+    <section id="achievements-section">
+      <h2>Achievements</h2>
+      <div id="achievements-list">No achievements yet.</div>
+    </section>
+    <div id="toasts" aria-live="polite" aria-atomic="true"></div>
+    <div id="save-status" class="save-status hidden" aria-live="polite"></div>
+    </div>
+    <div id="currency-panel">
+      <div class="panel-header">
+        <div>Currencies</div>
+      </div>
+      <div id="currency-list" aria-label="All currencies"></div>
+      <div id="prestige-shop-section">
+        <h2>Prestige Shop</h2>
+        <div id="prestige-shop" class="prestige-shop"></div>
+      </div>
+      <div id="prestige-titles-section">
+        <div class="panel-header">
+          <div>Prestige Titles</div>
+          <div class="titles-pagination">
+            <button id="prestige-titles-prev" class="control-btn small">Prev</button>
+            <span id="prestige-titles-page">1/1</span>
+            <button id="prestige-titles-next" class="control-btn small">Next</button>
+          </div>
+        </div>
+        <div id="prestige-titles" class="prestige-titles"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/game.js"></script>
+</body>
+</html>
+
+
+
+
