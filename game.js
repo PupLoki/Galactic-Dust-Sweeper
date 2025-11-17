@@ -27,6 +27,19 @@
     'Starlight Sovereign',
     'Celestial Empress',
   ];
+  const prestigeTitleGradients = [
+    'linear-gradient(90deg,#7ff3ea,#ffd66b)',
+    'linear-gradient(90deg,#6ef0df,#8aa4ff)',
+    'linear-gradient(90deg,#ffd66b,#ff9fbf)',
+    'linear-gradient(90deg,#9be7ff,#6ef0df)',
+    'linear-gradient(90deg,#ffb347,#ffd6ff)',
+    'linear-gradient(90deg,#c0ff8c,#6ef0df)',
+    'linear-gradient(90deg,#8ed6ff,#b39ddb)',
+    'linear-gradient(90deg,#ff9a9e,#fad0c4)',
+    'linear-gradient(90deg,#a18cd1,#fbc2eb)',
+    'linear-gradient(90deg,#f6d365,#fda085)',
+    'linear-gradient(90deg,#84fab0,#8fd3f4)',
+  ];
 
   // Suppress noisy extension messaging errors that can bubble into the console on some browsers.
   const isMessageChannelNoise = reason => {
@@ -153,21 +166,57 @@
     { name: 'Aurora Spire', cost: 640000, bonus: 0.52, currency: 'Aurora Dust' },
   ];
 
+  // Music presets inspired by Tidal/Strudel patterns: chiptune shimmer over chill/lofi grooves.
   const presets = {
-    groove: {
-      tempo: 140, // Galactic Drift tempo
-      kick: [0, 2, 4, 6],
-      snare: [2, 6],
-      hat: [0, 1, 2, 3, 4, 5, 6, 7],
-      hatOpen: [1, 3, 5, 7],
-      chordLengthBeats: 4, // each chord lasts a bar
-      chordRoots: [5, 1, -4, 2], // Dmin -> Bb -> F -> C relative to A base
-      chords: [[0, 3, 7]], // minor triad feel
-      baseFreq: 220, // A base for chord roots
-      bassBeats: [0, 4, 8, 12], // start of each chord
-      bassLine: [4, 0, 7, 2], // D, Bb, F, C relative to Bb base
-      bassBase: 58.27, // Bb1 base for bassline
-      arpSteps: [0, 7, 12, 14], // spacey arp
+    aurora: {
+      tempo: 124,
+      kick: [0, 4, 8, 12, 16, 20, 24, 28, 31],
+      snare: [6, 14, 22, 30],
+      hat: [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29],
+      hatOpen: [7, 15, 23, 29],
+      chordLengthBeats: 4,
+      chordRoots: [0, -3, -7, -5, -10, -7, -5, -2], // vi-IV colors
+      altChordRoots: [-7, -5, -10, -3, -12, -7, -5, -2], // softer pass
+      chords: [
+        [0, 4, 7, 11],   // maj7
+        [0, 3, 7, 10],   // m7
+        [0, 5, 9, 12],   // sus/add9
+        [0, 4, 9, 14],   // add6/9
+      ],
+      baseFreq: 220,
+      bassBeats: [0, 3, 6, 8, 11, 14, 16, 19, 22, 24, 27, 30],
+      bassLine: [0, -5, -7, -3, -10, -7, -5, -12],
+      altBassLine: [-12, -7, -5, -9, -14, -9, -12, -5],
+      bassBase: 55,
+      arpSteps: [0, 7, 12, 14, 19],
+      altArpSteps: [0, 12, 7, 14, 19],
+      altHat: [1, 5, 9, 13, 17, 21, 25, 29],
+      altHatOpen: [7, 23],
+    },
+    eclipse: {
+      tempo: 132,
+      kick: [0, 4, 8, 12, 16, 20, 24, 28],
+      snare: [6, 14, 22, 30],
+      hat: [2, 3, 6, 7, 10, 11, 14, 15, 18, 19, 22, 23, 26, 27],
+      hatOpen: [5, 13, 21, 29],
+      chordLengthBeats: 4,
+      chordRoots: [0, 2, -3, 5, -2, 3, -4, 7],
+      altChordRoots: [-5, -2, 0, 3, -4, 1, -7, 5],
+      chords: [
+        [0, 4, 7, 14],   // add6/9 sparkle
+        [0, 3, 7, 10],   // m7
+        [0, 5, 9, 12],   // sus/add9
+        [0, 4, 9, 11],   // maj7 add9-ish
+      ],
+      baseFreq: 246.94,
+      bassBeats: [0, 3, 7, 9, 12, 15, 19, 21, 24, 27, 31],
+      bassLine: [0, -2, -7, -5, -9, -7, -12, -14],
+      altBassLine: [-12, -9, -5, -7, -14, -12, -7, -9],
+      bassBase: 61.74,
+      arpSteps: [0, 7, 12, 16, 19, 24],
+      altArpSteps: [0, 12, 7, 16, 19],
+      altHat: [2, 6, 10, 14, 18, 22, 26, 30],
+      altHatOpen: [9, 25],
     },
   };
 
@@ -227,9 +276,12 @@
     ctx: null,
     master: null,
     pump: null,
+    chipCrunch: null,
     loopId: null,
     beatIndex: 0,
     chordIndex: 0,
+    presetIndex: 0,
+    barCount: 0,
     unlocked: false,
     pendingStart: false,
   };
@@ -1104,6 +1156,11 @@
       showToast(`Title earned: ${prestigeTitles[idx]}`, 'success');
     }
     setText(els.prestigeTitle, 'prestige-title', prestigeTitles[idx]);
+    const grad = prestigeTitleGradients[idx] || prestigeTitleGradients[prestigeTitleGradients.length - 1];
+    els.prestigeTitle.style.backgroundImage = grad;
+    els.prestigeTitle.style.webkitBackgroundClip = 'text';
+    els.prestigeTitle.style.webkitTextFillColor = 'transparent';
+    els.prestigeTitle.style.backgroundSize = '120% 120%';
   }
 
   function getCurrentPrestigeTitleIndex() {
@@ -1123,7 +1180,19 @@
       const row = document.createElement('div');
       row.className = 'prestige-title-item';
       const locked = globalIdx > getCurrentPrestigeTitleIndex();
-      row.textContent = locked ? `??? (Prestige ${globalIdx * 10})` : title;
+      const titleSpan = document.createElement('span');
+      titleSpan.className = 'title-text';
+      titleSpan.textContent = locked ? '???' : title;
+      const gradient = prestigeTitleGradients[globalIdx] || prestigeTitleGradients[prestigeTitleGradients.length - 1];
+      titleSpan.style.backgroundImage = locked ? 'linear-gradient(90deg,#9aa5b4,#c7d1dd)' : gradient;
+      titleSpan.style.webkitBackgroundClip = 'text';
+      titleSpan.style.webkitTextFillColor = 'transparent';
+      titleSpan.style.backgroundSize = '120% 120%';
+      const levelSpan = document.createElement('span');
+      levelSpan.className = 'title-level';
+      levelSpan.textContent = locked ? `Prestige ${globalIdx * 10}` : `#${globalIdx + 1}`;
+      row.appendChild(titleSpan);
+      row.appendChild(levelSpan);
       frag.appendChild(row);
     });
     els.prestigeTitles.replaceChildren(frag);
@@ -1330,6 +1399,8 @@
     stopBgm(); // clear old loops
     audioEngine.beatIndex = 0;
     audioEngine.chordIndex = 0;
+    audioEngine.presetIndex = 0;
+    audioEngine.barCount = 0;
     scheduleLoop();
   }
 
@@ -1341,41 +1412,61 @@
   }
 
   function scheduleLoop() {
-    const preset = presets.groove;
+    const presetIds = ['aurora', 'eclipse'];
+    const preset = presets[presetIds[audioEngine.presetIndex % presetIds.length]];
     const secondsPerBeat = 60 / preset.tempo;
     const step = () => {
       const ctx = ensureAudioContext();
       const t = ctx.currentTime;
       const totalBeats = preset.chordLengthBeats * (preset.chordRoots?.length || 4);
       const beat = audioEngine.beatIndex % totalBeats;
+      const useAlt = (audioEngine.barCount % 8) >= 4;
+      const breakdown = (audioEngine.barCount % 16) === 12; // softer last 4 bars of a 16-bar block
+      const chordRoots = useAlt ? (preset.altChordRoots || preset.chordRoots) : preset.chordRoots;
+      const hatPattern = useAlt ? (preset.altHat || preset.hat) : preset.hat;
+      const hatOpenPattern = useAlt ? (preset.altHatOpen || preset.hatOpen) : preset.hatOpen;
+      const bassLine = useAlt ? (preset.altBassLine || preset.bassLine) : preset.bassLine;
+      const arpSteps = useAlt ? (preset.altArpSteps || preset.arpSteps) : preset.arpSteps;
       // Kick
       if (preset.kick.includes(beat)) triggerDrum(ctx, 'kick', t);
       // Snare
-      if (preset.snare.includes(beat)) triggerDrum(ctx, 'snare', t);
+      if (!breakdown && preset.snare.includes(beat)) triggerDrum(ctx, 'snare', t);
       // Hat
-      if (preset.hat.includes(beat)) triggerDrum(ctx, 'hat', t);
+      if (!breakdown && hatPattern?.includes(beat)) triggerDrum(ctx, 'hat', t);
       // Open hat on offbeats for bounce
-      if (preset.hatOpen?.includes(beat)) triggerDrum(ctx, 'hatOpen', t);
+      if (!breakdown && hatOpenPattern?.includes(beat)) triggerDrum(ctx, 'hatOpen', t);
       // Bass
       if (preset.bassBeats.includes(beat)) {
-        const note = preset.bassLine[beat % preset.bassLine.length];
+        const note = bassLine[beat % bassLine.length];
         if (note !== null && note !== undefined) {
-          triggerBass(ctx, note, preset.bassBase, t);
+          const bassTime = breakdown ? t + 0.02 : t;
+          triggerBass(ctx, note, preset.bassBase, bassTime);
         }
       }
       // Chord/arp at start of each bar
       if (beat % preset.chordLengthBeats === 0) {
-        const chordSlot = (audioEngine.beatIndex / preset.chordLengthBeats) % (preset.chordRoots?.length || 1);
+        const chordSlot = (audioEngine.beatIndex / preset.chordLengthBeats) % (chordRoots?.length || 1);
         const chord = preset.chords[audioEngine.chordIndex % preset.chords.length];
-        const rootSemi = preset.chordRoots?.[Math.floor(chordSlot)] || 0;
+        const rootSemi = chordRoots?.[Math.floor(chordSlot)] || 0;
         const chordBase = preset.baseFreq * Math.pow(2, (rootSemi || 0) / 12);
-        const chordDur = secondsPerBeat * (preset.chordLengthBeats - 0.2);
+        const chordDur = breakdown
+          ? secondsPerBeat * (preset.chordLengthBeats - 0.6)
+          : secondsPerBeat * (preset.chordLengthBeats - 0.2);
         triggerChord(ctx, chord, chordBase, t, chordDur);
         // Logic bass will get hit by bassBeats above; ensure arp fires here too
-        if (preset.arpSteps) {
-          setTimeout(() => triggerArp(ctx, chordBase, preset.arpSteps, secondsPerBeat), secondsPerBeat * 0.5 * 1000);
+        if (arpSteps) {
+          const arpDelay = breakdown ? secondsPerBeat * 0.7 : secondsPerBeat * 0.5;
+          setTimeout(() => triggerArp(ctx, chordBase, arpSteps, secondsPerBeat), arpDelay * 1000);
         }
         audioEngine.chordIndex += 1;
+        audioEngine.barCount += 1;
+        // Periodically evolve by swapping preset after a block of bars
+        if (audioEngine.barCount % 16 === 0) {
+          audioEngine.presetIndex = (audioEngine.presetIndex + 1) % presetIds.length;
+          audioEngine.beatIndex = 0;
+          audioEngine.chordIndex = 0;
+          audioEngine.barCount = 0;
+        }
       }
       audioEngine.beatIndex += 1;
     };
@@ -1383,13 +1474,55 @@
     audioEngine.loopId = setInterval(step, secondsPerBeat * 1000);
   }
 
-  function envGain(ctx, time, duration, peak = 1, tail = 0.001) {
+  function envGain(ctx, time, duration, peak = 1, tail = 0.001, dest = null) {
+    const safeDuration = Number.isFinite(duration) && duration > 0 ? duration : 0.1;
+    const safePeak = Number.isFinite(peak) ? peak : 1;
+    const safeTail = Number.isFinite(tail) && tail > 0 ? tail : 0.001;
     const g = ctx.createGain();
     g.gain.setValueAtTime(0, time);
-    g.gain.linearRampToValueAtTime(peak, time + 0.01);
-    g.gain.exponentialRampToValueAtTime(tail, time + duration);
-    g.connect(audioEngine.master);
+    g.gain.linearRampToValueAtTime(safePeak, time + 0.01);
+    g.gain.exponentialRampToValueAtTime(safeTail, time + safeDuration);
+    const target = dest || audioEngine.master;
+    g.connect(target);
     return g;
+  }
+
+  function createBitCrusher(ctx, bits = 6, mix = 0.35) {
+    const steps = Math.pow(2, bits);
+    const curve = new Float32Array(1024);
+    for (let i = 0; i < curve.length; i++) {
+      const x = (i / (curve.length - 1)) * 2 - 1;
+      curve[i] = Math.round(x * steps) / steps;
+    }
+    const shaper = ctx.createWaveShaper();
+    shaper.curve = curve;
+    shaper.oversample = 'none';
+    const input = ctx.createGain();
+    const dry = ctx.createGain();
+    const wet = ctx.createGain();
+    const safeMix = Math.max(0, Math.min(1, mix));
+    dry.gain.value = Math.max(0, 1 - safeMix);
+    wet.gain.value = safeMix;
+    input.connect(dry);
+    input.connect(shaper);
+    shaper.connect(wet);
+    const output = ctx.createGain();
+    dry.connect(output);
+    wet.connect(output);
+    return { input, output };
+  }
+
+  function ensureChipCrunch(ctx) {
+    if (audioEngine.chipCrunch) return audioEngine.chipCrunch;
+    const crunch = createBitCrusher(ctx, 5, 0.34);
+    crunch.output.connect(audioEngine.master);
+    audioEngine.chipCrunch = crunch;
+    return crunch;
+  }
+
+  function chipDest(ctx) {
+    const crunch = ensureChipCrunch(ctx);
+    return crunch.input;
   }
 
   function triggerDrum(ctx, type, time) {
@@ -1422,7 +1555,8 @@
       const data = buffer.getChannelData(0);
       for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
       noise.buffer = buffer;
-      const gain = envGain(ctx, time, 0.08, 0.15);
+      const crunch = chipDest(ctx);
+      const gain = envGain(ctx, time, 0.08, 0.15, 0.001, crunch);
       const hp = ctx.createBiquadFilter();
       hp.type = 'highpass';
       hp.frequency.value = 5000;
@@ -1435,7 +1569,8 @@
       const data = buffer.getChannelData(0);
       for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
       noise.buffer = buffer;
-      const gain = envGain(ctx, time, 0.18, 0.22, 0.0001);
+      const crunch = chipDest(ctx);
+      const gain = envGain(ctx, time, 0.18, 0.22, 0.0001, crunch);
       const hp = ctx.createBiquadFilter();
       hp.type = 'highpass';
       hp.frequency.value = 7000;
@@ -1448,7 +1583,7 @@
   function triggerBass(ctx, semi, baseFreq, time) {
     const osc = ctx.createOscillator();
     const sub = ctx.createOscillator();
-    const gain = envGain(ctx, time, 0.45, 0.45, 0.0008);
+    const gain = envGain(ctx, time, 0.45, 0.45, 0.0008, chipDest(ctx));
     const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
     filter.frequency.setValueAtTime(90, time);
@@ -1477,7 +1612,7 @@
   function triggerChord(ctx, semitones, baseFreq, time, duration = 1.6) {
     semitones.forEach(semi => {
       const osc = ctx.createOscillator();
-      const gain = envGain(ctx, time, duration, 0.08, 0.0005);
+      const gain = envGain(ctx, time, duration, 0.08, 0.0005, chipDest(ctx));
       osc.type = 'triangle';
       osc.frequency.value = baseFreq * Math.pow(2, semi / 12);
       osc.connect(gain);
@@ -1489,8 +1624,8 @@
   function triggerArp(ctx, baseFreq, steps, secondsPerBeat) {
     steps.forEach((s, i) => {
       const osc = ctx.createOscillator();
-      const gain = envGain(ctx, ctx.currentTime, secondsPerBeat * 0.4, 0.12, 0.0008);
-      osc.type = 'triangle';
+      const gain = envGain(ctx, ctx.currentTime, secondsPerBeat * 0.4, 0.12, 0.0008, chipDest(ctx));
+      osc.type = 'square';
       osc.frequency.value = baseFreq * Math.pow(2, s / 12);
       osc.connect(gain);
       const start = ctx.currentTime + i * secondsPerBeat * 0.25;
