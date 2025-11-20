@@ -171,6 +171,27 @@ header h1 {
   flex-direction:column;
   gap:12px;
 }
+.cb-mode #zone-progress-fill,
+.cb-mode #prestige-progress-fill,
+.cb-mode #zone-progress{
+  filter: hue-rotate(35deg) saturate(1.2);
+}
+.cb-mode .control-btn{
+  border-color: rgba(255,214,107,0.4);
+}
+.perf-low #zone-section::after,
+.perf-low #zone-bg::before,
+.perf-low .particle,
+.perf-low .sweep-burst,
+.perf-low .sweep-arc{
+  display:none !important;
+}
+.panels-collapsed #layout-shell{
+  flex-direction:column;
+}
+.panels-collapsed .side-panel{
+  display:none;
+}
 .map-card{
   background: rgba(16,22,29,0.95);
   border:1px solid rgba(127,235,216,0.12);

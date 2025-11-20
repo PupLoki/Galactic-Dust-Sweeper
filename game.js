@@ -418,6 +418,9 @@
     bgmPattern: 'tidebloom',
     clickSoundOn: true,
     clickVolume: 0.9,
+    performanceLow: false,
+    colorblind: false,
+    panelsCollapsed: false,
     lastUpdate: Date.now(),
     tools: {},
     achievements: {},
@@ -464,10 +467,14 @@
     clickButton: document.getElementById('click-button'),
     bgmToggle: document.getElementById('bgm-toggle-btn'),
     clickToggle: document.getElementById('click-toggle-btn'),
+    bgmPreview: document.getElementById('bgm-preview-btn'),
     bgmVolume: document.getElementById('bgm-volume'),
     bgmMute: document.getElementById('bgm-mute'),
     bgmPattern: document.getElementById('bgm-pattern'),
     clickVolume: document.getElementById('click-volume'),
+    perfToggle: document.getElementById('perf-toggle'),
+    cbToggle: document.getElementById('cb-toggle'),
+    panelToggle: document.getElementById('panel-toggle-btn'),
     saveBtn: document.getElementById('save-btn'),
     loadBtn: document.getElementById('load-btn'),
     saveStatus: document.getElementById('save-status'),
@@ -544,7 +551,7 @@
   setupToolPaging();
 
   bindUI();
-  loadGame();
+  loadGame(true);
   recalcProduction();
   renderAchievements(true);
   updateUI();
@@ -650,6 +657,26 @@
       const val = Math.max(0, Math.min(1, parseFloat(e.target.value)));
       state.clickVolume = Number.isFinite(val) ? val : state.clickVolume;
     });
+    els.bgmPreview?.addEventListener('click', () => {
+      const sel = els.bgmPattern?.value || 'tidebloom';
+      state.bgmPattern = sel;
+      startBgm();
+      showToast(`Previewing ${capitalize(sel)} pattern.`, 'info');
+    });
+    els.perfToggle?.addEventListener('click', () => {
+      state.performanceLow = !state.performanceLow;
+      updatePrefToggles();
+      showToast(`Performance mode ${state.performanceLow ? 'enabled' : 'disabled'}.`, 'info');
+    });
+    els.cbToggle?.addEventListener('click', () => {
+      state.colorblind = !state.colorblind;
+      updatePrefToggles();
+      showToast(`Colorblind mode ${state.colorblind ? 'enabled' : 'disabled'}.`, 'info');
+    });
+    els.panelToggle?.addEventListener('click', () => {
+      state.panelsCollapsed = !state.panelsCollapsed;
+      updatePrefToggles();
+    });
     els.menuBtn?.addEventListener('click', showMenu);
     els.menuStartBtn?.addEventListener('click', () => {
       hideMenu();
@@ -674,6 +701,40 @@
     els.prestigeShopPrev?.addEventListener('click', () => changePrestigeShopPage(-1));
     els.prestigeShopNext?.addEventListener('click', () => changePrestigeShopPage(1));
     applyZoneButtonTheme(state.currentZoneIndex);
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', e => {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target?.tagName)) return;
+      if (state.inMenu && e.key === 'm') { hideMenu(); return; }
+      switch (e.key.toLowerCase()) {
+        case ' ':
+          if (!state.inMenu) handleClick();
+          break;
+        case 's':
+          saveGame();
+          showSaveStatus('Saved (shortcut)', 'ok');
+          break;
+        case 'm':
+          state.inMenu ? hideMenu() : showMenu();
+          break;
+        case 'z':
+          const zone = zones[state.currentZoneIndex];
+          showToast(`Current Zone: ${zone?.name || 'Unknown'}`, 'info');
+          break;
+        case 'p':
+          doPrestige();
+          break;
+        default:
+          break;
+      }
+    });
+
+    if (window.innerWidth < 720) {
+      state.panelsCollapsed = true;
+      updatePrefToggles();
+    } else {
+      updatePrefToggles();
+    }
   }
 
   function handleClick() {
@@ -1029,6 +1090,9 @@
       state.bgmPattern = patternMap[legacyPattern] || state.bgmPattern;
       state.clickSoundOn = data.clickSoundOn ?? state.clickSoundOn;
       state.clickVolume = data.clickVolume ?? state.clickVolume;
+      state.performanceLow = data.performanceLow ?? state.performanceLow;
+      state.colorblind = data.colorblind ?? state.colorblind;
+      state.panelsCollapsed = data.panelsCollapsed ?? state.panelsCollapsed;
       state.achievements = data.achievements ?? state.achievements;
       state.lastSaveAt = data.lastSaveAt ?? data.lastUpdate ?? state.lastSaveAt;
 
@@ -1089,6 +1153,7 @@
     renderAchievements();
     updateAudioUI();
     updateClickToggleUI();
+    updatePrefToggles();
     updateMenuSaveTime();
   }
 
@@ -1107,6 +1172,9 @@
       bgmPattern: state.bgmPattern,
       clickSoundOn: state.clickSoundOn,
       clickVolume: state.clickVolume,
+      performanceLow: state.performanceLow,
+      colorblind: state.colorblind,
+      panelsCollapsed: state.panelsCollapsed,
       tools: state.tools,
       achievements: state.achievements,
       lastUpdate: Date.now(),
@@ -1144,13 +1212,19 @@
       });
       updateUI();
     }, 250);
+
+    // Gentle save reminder every 7 minutes
+    setInterval(() => {
+      const now = Date.now();
+      if (!state.lastSaveAt) return;
+      const mins = (now - state.lastSaveAt) / 60000;
+      if (mins >= 7) {
+        showToast('Hint: save your progress (7+ min since last save).', 'info');
+      }
+    }, 60000);
   }
 
   function updateAudioUI() {
-    if (els.bgmToggle) {
-      els.bgmToggle.classList.toggle('active', state.bgmOn);
-      els.bgmToggle.textContent = `BGM: ${state.bgmOn ? 'On' : 'Off'}`;
-    }
     if (els.bgmVolume) els.bgmVolume.value = String(state.bgmVolume ?? 0.8);
     if (els.bgmMute) {
       els.bgmMute.textContent = state.bgmMuted ? 'Unmute' : 'Mute';
@@ -1180,6 +1254,23 @@
     if (els.clickVolume) els.clickVolume.value = String(state.clickVolume ?? 0.9);
   }
 
+  function updatePrefToggles() {
+    if (els.perfToggle) {
+      els.perfToggle.textContent = `Perf: ${state.performanceLow ? 'On' : 'Off'}`;
+      els.perfToggle.classList.toggle('active', state.performanceLow);
+    }
+    if (els.cbToggle) {
+      els.cbToggle.textContent = `CB: ${state.colorblind ? 'On' : 'Off'}`;
+      els.cbToggle.classList.toggle('active', state.colorblind);
+    }
+    if (els.panelToggle) {
+      els.panelToggle.textContent = `Panels: ${state.panelsCollapsed ? 'Off' : 'On'}`;
+    }
+    document.body.classList.toggle('perf-low', state.performanceLow);
+    document.body.classList.toggle('cb-mode', state.colorblind);
+    document.body.classList.toggle('panels-collapsed', state.panelsCollapsed);
+  }
+
   function updateMenuSaveTime(ts = state.lastSaveAt) {
     if (!els.menuSaveTime || !ts) return;
     const d = new Date(ts);
@@ -1191,6 +1282,7 @@
   }
 
   function spawnParticle(force = false) {
+    if (state.performanceLow && !force) return;
     if (!els.zoneOverlay) return;
     if (!force && !state.clickSoundOn) return;
     const val = formatNumber(state.dustPerClick * (1 + state.prestige * 0.1), 0);
@@ -1719,6 +1811,7 @@
     updateMenuSaveTime();
     updateAudioUI();
     updateClickToggleUI();
+    updatePrefToggles();
   }
 
   function hideMenu() {

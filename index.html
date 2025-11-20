@@ -29,7 +29,8 @@
           </div>
           <div class="menu-row">
             <label for="bgm-pattern">Pattern</label>
-            <select id="bgm-pattern" class="control-select" aria-label="Background music pattern">
+            <div class="menu-row-inline">
+              <select id="bgm-pattern" class="control-select" aria-label="Background music pattern">
               <option value="tidebloom">Tide Bloom</option>
               <option value="starwave">Starwave</option>
               <option value="nightdrive">Night Drive</option>
@@ -37,7 +38,9 @@
               <option value="bitblitz">Bit Blitz</option>
               <option value="hyperpulse">Hyperpulse</option>
               <option value="moodchip">Moodchip</option>
-            </select>
+              </select>
+              <button id="bgm-preview-btn" class="control-btn subtle">Preview</button>
+            </div>
           </div>
           <div class="menu-row">
             <label for="click-volume">Tap SFX</label>
@@ -46,6 +49,21 @@
               <input id="click-volume" type="range" min="0" max="1" step="0.05" value="0.9" aria-label="Tap sfx volume">
             </div>
           </div>
+        </div>
+      </div>
+      <div class="menu-section">
+        <div class="menu-section-title">Accessibility & Performance</div>
+        <div class="menu-row-inline">
+          <label for="perf-toggle">Performance Mode</label>
+          <button id="perf-toggle" class="control-btn subtle">Perf: Off</button>
+        </div>
+        <div class="menu-row-inline">
+          <label for="cb-toggle">Colorblind Mode</label>
+          <button id="cb-toggle" class="control-btn subtle">CB: Off</button>
+        </div>
+        <div class="menu-row-inline">
+          <label for="panel-toggle-btn">Collapse Side Panels (mobile)</label>
+          <button id="panel-toggle-btn" class="control-btn subtle">Panels: On</button>
         </div>
       </div>
       <p class="menu-hint">You can reopen this menu anytime to adjust BGM or clicks.</p>
