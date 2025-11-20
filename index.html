@@ -7,9 +7,9 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="main-menu" class="overlay-menu">
+  <div id="main-menu" class="overlay-menu" role="dialog" aria-modal="true" aria-labelledby="menu-title">
     <div class="menu-card">
-      <h1>Galactic Dust Sweeper</h1>
+      <h1 id="menu-title">Galactic Dust Sweeper</h1>
       <p class="menu-sub">Sweep the stars. Build your fleet. Rise through prestiges.</p>
       <p class="menu-sub">Developed By PupLoki on Github</p>
       <div class="menu-section">
@@ -21,27 +21,56 @@
       </div>
       <div class="menu-section">
         <div class="menu-section-title">Audio & Input</div>
-        <div class="menu-actions two-col">
-          <button id="bgm-toggle-btn" class="control-btn">BGM: On</button>
-          <button id="click-toggle-btn" class="control-btn">Click: On</button>
+        <div class="menu-grid">
+          <div class="menu-row">
+            <label for="bgm-volume">Music Volume</label>
+            <input id="bgm-volume" type="range" min="0" max="1" step="0.05" value="0.8" aria-label="Music volume">
+            <button id="bgm-mute" class="control-btn subtle" aria-pressed="false">Mute</button>
+          </div>
+          <div class="menu-row">
+            <label for="bgm-pattern">Pattern</label>
+            <select id="bgm-pattern" class="control-select" aria-label="Background music pattern">
+              <option value="tidebloom">Tide Bloom</option>
+              <option value="starwave">Starwave</option>
+              <option value="nightdrive">Night Drive</option>
+              <option value="pixelpop">Pixel Pop</option>
+              <option value="bitblitz">Bit Blitz</option>
+              <option value="hyperpulse">Hyperpulse</option>
+              <option value="moodchip">Moodchip</option>
+            </select>
+          </div>
+          <div class="menu-row">
+            <label for="click-volume">Tap SFX</label>
+            <div class="menu-row-inline">
+              <button id="click-toggle-btn" class="control-btn subtle">SFX: On</button>
+              <input id="click-volume" type="range" min="0" max="1" step="0.05" value="0.9" aria-label="Tap sfx volume">
+            </div>
+          </div>
         </div>
       </div>
       <p class="menu-hint">You can reopen this menu anytime to adjust BGM or clicks.</p>
+      <div class="menu-save">
+        <div class="menu-save-meta">
+          <span>Last Save:</span>
+          <strong id="menu-save-time">Never</strong>
+        </div>
+        <button id="menu-save-btn" class="control-btn accent">Save Now</button>
+      </div>
     </div>
   </div>
-  <div id="map-modal" class="overlay-menu hidden">
+  <div id="map-modal" class="overlay-menu hidden" role="dialog" aria-modal="true" aria-labelledby="map-title">
     <div class="map-card">
       <div class="map-card-header">
-        <div>Zone Map</div>
+        <div id="map-title">Zone Map</div>
         <button id="map-close-btn" class="control-btn">Close</button>
       </div>
       <pre id="map-content" aria-label="Zone map"></pre>
     </div>
   </div>
-  <div id="stats-modal" class="overlay-menu hidden">
+  <div id="stats-modal" class="overlay-menu hidden" role="dialog" aria-modal="true" aria-labelledby="stats-title">
     <div class="map-card">
       <div class="map-card-header">
-        <div>Stats</div>
+        <div id="stats-title">Stats</div>
         <button id="stats-close-btn" class="control-btn">Close</button>
       </div>
       <pre id="stats-content" aria-label="Game stats"></pre>

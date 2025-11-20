@@ -192,7 +192,7 @@
 
   // Music presets inspired by Tidal/Strudel patterns: chiptune shimmer over chill/lofi grooves.
   const presets = {
-    aurora: {
+    starwave: {
       tempo: 124,
       kick: [0, 4, 8, 12, 16, 20, 24, 28, 31],
       snare: [6, 14, 22, 30],
@@ -217,7 +217,7 @@
       altHat: [1, 5, 9, 13, 17, 21, 25, 29],
       altHatOpen: [7, 23],
     },
-    eclipse: {
+    nightdrive: {
       tempo: 132,
       kick: [0, 4, 8, 12, 16, 20, 24, 28],
       snare: [6, 14, 22, 30],
@@ -243,7 +243,7 @@
       altHatOpen: [9, 25],
     },
     // New tidal-inspired preset with denser percussion and brighter arp.
-    tidalBloom: {
+    tidebloom: {
       tempo: 126, // more upbeat, keeps shimmer
       // pattern strings will be expanded to 32-step grids (8 bars of 4 beats)
       kick: 'x..x.x..x.x...x..x..x.x...x..x.',      // punchier, keeps groove
@@ -269,7 +269,108 @@
       altHat: 'x.x..x.x.x..x.x.x..x.x.x..x.x.',       // alternate shuffle
       altHatOpen: '......x...x......x...x......x...',  // matching lift
     },
+    pixelpop: { // bright pop-chip energy
+      tempo: 142,
+      kick: 'x...x.x.x...x.x.x...x.x.x...x.x.',
+      snare: '..x...x...x...x...x...x...x...x.',
+      hat: 'x.x.x.x.x.x.x.x.x.x.x.x.x.x.x.x.',
+      hatOpen: '....x.......x.......x.......x...',
+      chordLengthBeats: 4,
+      chordRoots: [0, 5, -2, 3, -4, 1, -5, 0],
+      altChordRoots: [-7, -2, -5, 0, -3, 2, -4, -1],
+      chords: [
+        [0, 4, 7, 12],   // power-pop
+        [0, 3, 7, 10],   // m7
+        [0, 7, 12, 16],  // add4/6
+        [0, 5, 9, 14],   // sus/add9
+      ],
+      baseFreq: 220,
+      bassBeats: 'x...x...x.x...x...x.x...x...x...',
+      bassLine: [0, -5, -7, -12, -7, -5, -3, -2],
+      altBassLine: [-12, -7, -10, -5, -3, -7, -5, -14],
+      bassBase: 55,
+      arpSteps: [0, 7, 12, 19, 24],
+      altArpSteps: [0, 5, 12, 17, 24],
+      altHat: 'x.x...x.x...x.x...x.x...x.x...',
+      altHatOpen: '....x.......x.......x.......x...',
+    },
+    bitblitz: { // edgy break-chip
+      tempo: 150,
+      kick: 'x.x...x.x...x.x...x.x...x.x...',
+      snare: '....x.......x...x.......x.....',
+      hat: 'x.xx.x.xx.x.xx.x.xx.x.xx.x.xx.',
+      hatOpen: '..x.....x.....x.....x.....x...',
+      chordLengthBeats: 4,
+      chordRoots: [0, -3, -6, -1, -8, -5, -10, -3],
+      altChordRoots: [-5, -8, -1, -6, -10, -3, -12, -7],
+      chords: [
+        [0, 3, 7, 10],
+        [0, 5, 9, 12],
+        [0, 3, 7, 14],
+        [0, 7, 10, 15],
+      ],
+      baseFreq: 207.65,
+      bassBeats: 'x..x..x...x..x..x...x..x..x...',
+      bassLine: [0, -7, -5, -12, -3, -10, -7, -14],
+      altBassLine: [-12, -5, -10, -3, -7, -12, -5, -15],
+      bassBase: 51.9,
+      arpSteps: [0, 7, 10, 14, 17, 21],
+      altArpSteps: [0, 12, 7, 15, 19],
+      altHat: 'x.xx..x.xx..x.xx..x.xx..x.xx..',
+      altHatOpen: '..x.....x.....x.....x.....x...',
+    },
+    hyperpulse: { // driving dance-chip
+      tempo: 136,
+      kick: 'x...x...x.x...x...x.x...x...x...',
+      snare: '....x.......x.......x.......x...',
+      hat: 'x.x.x.x.x.x.x.x.x.x.x.x.x.x.x.x.',
+      hatOpen: '......x.......x.......x.......',
+      chordLengthBeats: 4,
+      chordRoots: [0, -5, -2, 3, -4, 1, -6, -1],
+      altChordRoots: [-7, -2, -5, 0, -3, 2, -6, -1],
+      chords: [
+        [0, 4, 7, 11],
+        [0, 5, 9, 12],
+        [0, 3, 7, 10],
+        [0, 7, 12, 16],
+      ],
+      baseFreq: 233.08, // A#3
+      bassBeats: 'x...x...x...x...x...x...x...x...',
+      bassLine: [0, -5, -9, -4, -7, -2, -5, -12],
+      altBassLine: [-12, -7, -5, -9, -4, -11, -7, -14],
+      bassBase: 58.27, // A#1
+      arpSteps: [0, 7, 12, 19, 24],
+      altArpSteps: [0, 5, 12, 17, 24],
+      altHat: 'x.x.x..x.x.x..x.x.x..x.x.x..x.',
+      altHatOpen: '......x.......x.......x.......',
+    },
+    moodchip: { // moody/bright hybrid
+      tempo: 124,
+      kick: 'x...x...x...x.x...x...x...x.x..',
+      snare: '....x.......x...x.......x.....',
+      hat: 'x.x..x.x..x.x..x.x..x.x..x.x..',
+      hatOpen: '.........x.........x.........x.',
+      chordLengthBeats: 4,
+      chordRoots: [0, -4, -7, -2, -5, -9, -12, -5],
+      altChordRoots: [-7, -2, -9, -4, -12, -5, -10, -3],
+      chords: [
+        [0, 3, 7, 10],
+        [0, 5, 9, 12],
+        [0, 7, 11, 14],
+        [0, 2, 7, 9],
+      ],
+      baseFreq: 196,
+      bassBeats: 'x...x...x...x...x...x...x...x...',
+      bassLine: [0, -5, -9, -12, -7, -10, -5, -3],
+      altBassLine: [-12, -7, -10, -5, -9, -4, -7, -2],
+      bassBase: 49,
+      arpSteps: [0, 7, 10, 14, 17],
+      altArpSteps: [0, 12, 7, 15, 19],
+      altHat: 'x.x..x.x..x.x..x.x..x.x..x.x..',
+      altHatOpen: '.........x.........x.........x.',
+    },
   };
+
 
   const achievementDefs = [
     { id: 'first_dust', label: 'First Sweep', description: 'Collect your first dust.', reward: { type: 'dust', value: 50 }, test: () => state.totalDustEarned >= 1 },
@@ -311,8 +412,12 @@
     prestigeTitleIndex: 0,
     prestigeUpgrades: {},
     currentZoneIndex: 0,
-    bgmOn: false,
+    bgmOn: true,
+    bgmVolume: 0.8,
+    bgmMuted: false,
+    bgmPattern: 'tidebloom',
     clickSoundOn: true,
+    clickVolume: 0.9,
     lastUpdate: Date.now(),
     tools: {},
     achievements: {},
@@ -320,6 +425,7 @@
     inMenu: true,
     currencyPerSecond: {},
     currencyClicks: {},
+    lastSaveAt: null,
   };
 
   // Lightweight Web Audio engine for coded music
@@ -327,6 +433,7 @@
     ctx: null,
     master: null,
     pump: null,
+    compressor: null,
     chipCrunch: null,
     loopId: null,
     beatIndex: 0,
@@ -357,6 +464,10 @@
     clickButton: document.getElementById('click-button'),
     bgmToggle: document.getElementById('bgm-toggle-btn'),
     clickToggle: document.getElementById('click-toggle-btn'),
+    bgmVolume: document.getElementById('bgm-volume'),
+    bgmMute: document.getElementById('bgm-mute'),
+    bgmPattern: document.getElementById('bgm-pattern'),
+    clickVolume: document.getElementById('click-volume'),
     saveBtn: document.getElementById('save-btn'),
     loadBtn: document.getElementById('load-btn'),
     saveStatus: document.getElementById('save-status'),
@@ -396,6 +507,8 @@
     prestigeShopPrev: document.getElementById('prestige-shop-prev'),
     prestigeShopNext: document.getElementById('prestige-shop-next'),
     prestigeShopPage: document.getElementById('prestige-shop-page'),
+    menuSaveTime: document.getElementById('menu-save-time'),
+    menuSaveBtn: document.getElementById('menu-save-btn'),
   };
 
   const toolUI = {};
@@ -458,10 +571,8 @@
       const ctx = ensureAudioContext();
       ctx.resume().then(() => {
         audioEngine.unlocked = true;
-        if (audioEngine.pendingStart && state.bgmOn) {
-          audioEngine.pendingStart = false;
-          startBgm();
-        }
+        audioEngine.pendingStart = false;
+        if (state.bgmOn) startBgm();
       }).catch(() => {
         audioEngine.unlocked = false;
       });
@@ -511,30 +622,46 @@
 
     els.prestigeBtn?.addEventListener('click', doPrestige);
 
-    els.bgmToggle?.addEventListener('click', () => {
-      if (!audioEngine.unlocked) {
-        const ctx = ensureAudioContext();
-        ctx.resume().then(() => {
-          audioEngine.unlocked = true;
-          if (state.bgmOn) startBgm();
-        }).catch(() => {});
-      }
-      state.bgmOn = !state.bgmOn;
+    els.bgmVolume?.addEventListener('input', e => {
+      const val = Math.max(0, Math.min(1, parseFloat(e.target.value)));
+      state.bgmVolume = Number.isFinite(val) ? val : state.bgmVolume;
+      ensureAudioContext();
+      applyBgmGain();
+    });
+    els.bgmMute?.addEventListener('click', () => {
+      state.bgmMuted = !state.bgmMuted;
+      ensureAudioContext();
+      applyBgmGain();
       updateAudioUI();
-      state.bgmOn ? startBgm() : stopBgm();
-      showToast(`BGM ${state.bgmOn ? 'enabled' : 'muted'}.`, 'info');
+    });
+    els.bgmPattern?.addEventListener('change', e => {
+      const val = e.target.value || 'tidalBloom';
+      state.bgmPattern = val;
+      audioEngine.presetIndex = 0;
+      audioEngine.barCount = 0;
+      if (state.bgmOn) startBgm();
+      updateAudioUI();
     });
     els.clickToggle?.addEventListener('click', () => {
       state.clickSoundOn = !state.clickSoundOn;
       updateClickToggleUI();
     });
+    els.clickVolume?.addEventListener('input', e => {
+      const val = Math.max(0, Math.min(1, parseFloat(e.target.value)));
+      state.clickVolume = Number.isFinite(val) ? val : state.clickVolume;
+    });
     els.menuBtn?.addEventListener('click', showMenu);
     els.menuStartBtn?.addEventListener('click', () => {
       hideMenu();
+      if (state.bgmOn) startBgm();
     });
     els.menuResetBtn?.addEventListener('click', () => {
       localStorage.removeItem(SAVE_KEY);
       window.location.reload();
+    });
+    els.menuSaveBtn?.addEventListener('click', () => {
+      saveGame();
+      updateMenuSaveTime();
     });
     els.statsBtn?.addEventListener('click', showStatsModal);
     els.statsCloseBtn?.addEventListener('click', hideStatsModal);
@@ -885,9 +1012,25 @@
       state.prestigeTitleIndex = data.prestigeTitleIndex ?? state.prestigeTitleIndex ?? 0;
       state.achievementMultiplier = data.achievementMultiplier ?? state.achievementMultiplier;
       state.currentZoneIndex = data.currentZoneIndex ?? state.currentZoneIndex;
-      state.bgmOn = data.bgmOn ?? state.bgmOn;
+      state.bgmOn = true; // always re-enable BGM
+      state.bgmVolume = data.bgmVolume ?? state.bgmVolume;
+      state.bgmMuted = data.bgmMuted ?? state.bgmMuted;
+      const legacyPattern = data.bgmPattern;
+      const patternMap = {
+        tidalBloom: 'tidebloom',
+        tidebloom: 'tidebloom',
+        aurora: 'starwave',
+        eclipse: 'nightdrive',
+        anamanaguchi: 'pixelpop',
+        chipzel: 'bitblitz',
+        sabrepulse: 'hyperpulse',
+        disasterpeace: 'moodchip',
+      };
+      state.bgmPattern = patternMap[legacyPattern] || state.bgmPattern;
       state.clickSoundOn = data.clickSoundOn ?? state.clickSoundOn;
+      state.clickVolume = data.clickVolume ?? state.clickVolume;
       state.achievements = data.achievements ?? state.achievements;
+      state.lastSaveAt = data.lastSaveAt ?? data.lastUpdate ?? state.lastSaveAt;
 
       if (data.tools) {
         Object.keys(toolCatalog).forEach(key => {
@@ -909,11 +1052,11 @@
         state.currencies[zone0Key] = (state.currencies[zone0Key] || 0) + state.dust;
       }
 
-      recalcProduction();
+    recalcProduction();
 
-      // Ensure new currency buckets exist for any newly added zones
-      zones.forEach((_, idx) => {
-        const key = currencyKey(idx);
+    // Ensure new currency buckets exist for any newly added zones
+    zones.forEach((_, idx) => {
+      const key = currencyKey(idx);
         state.currencies[key] = state.currencies[key] ?? 0;
       });
       state.prestigeUpgrades = data.prestigeUpgrades || {};
@@ -941,10 +1084,12 @@
       showToast('Load failed (corrupt or blocked storage).', 'warn');
       showSaveStatus('Load failed', 'warn');
     }
+    if (state.bgmOn) startBgm();
     achievementsDirty = true;
     renderAchievements();
     updateAudioUI();
     updateClickToggleUI();
+    updateMenuSaveTime();
   }
 
   function saveGame() {
@@ -957,10 +1102,15 @@
       achievementMultiplier: state.achievementMultiplier,
       currentZoneIndex: state.currentZoneIndex,
       bgmOn: state.bgmOn,
+      bgmVolume: state.bgmVolume,
+      bgmMuted: state.bgmMuted,
+      bgmPattern: state.bgmPattern,
       clickSoundOn: state.clickSoundOn,
+      clickVolume: state.clickVolume,
       tools: state.tools,
       achievements: state.achievements,
       lastUpdate: Date.now(),
+      lastSaveAt: Date.now(),
       currencies: state.currencies,
       currencyPerSecond: state.currencyPerSecond,
       prestigeUpgrades: state.prestigeUpgrades,
@@ -969,8 +1119,10 @@
     };
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify(payload));
+      state.lastSaveAt = payload.lastSaveAt;
       showToast('Game saved.', 'success');
       showSaveStatus('Saved just now', 'ok');
+      updateMenuSaveTime(payload.lastSaveAt);
     } catch (err) {
       console.error('Save failed', err);
       showToast('Save failed (storage full or blocked).', 'warn');
@@ -995,9 +1147,18 @@
   }
 
   function updateAudioUI() {
-    if (!els.bgmToggle) return;
-    els.bgmToggle.classList.toggle('active', state.bgmOn);
-    els.bgmToggle.textContent = `BGM: ${state.bgmOn ? 'On' : 'Off'}`;
+    if (els.bgmToggle) {
+      els.bgmToggle.classList.toggle('active', state.bgmOn);
+      els.bgmToggle.textContent = `BGM: ${state.bgmOn ? 'On' : 'Off'}`;
+    }
+    if (els.bgmVolume) els.bgmVolume.value = String(state.bgmVolume ?? 0.8);
+    if (els.bgmMute) {
+      els.bgmMute.textContent = state.bgmMuted ? 'Unmute' : 'Mute';
+      els.bgmMute.setAttribute('aria-pressed', state.bgmMuted ? 'true' : 'false');
+    }
+    if (els.bgmPattern && state.bgmPattern) {
+      els.bgmPattern.value = state.bgmPattern;
+    }
   }
 
   function currencyKey(zoneIndex) {
@@ -1015,7 +1176,18 @@
   function updateClickToggleUI() {
     if (!els.clickToggle) return;
     els.clickToggle.classList.toggle('active', state.clickSoundOn);
-    els.clickToggle.textContent = `Click: ${state.clickSoundOn ? 'On' : 'Off'}`;
+    els.clickToggle.textContent = `SFX: ${state.clickSoundOn ? 'On' : 'Off'}`;
+    if (els.clickVolume) els.clickVolume.value = String(state.clickVolume ?? 0.9);
+  }
+
+  function updateMenuSaveTime(ts = state.lastSaveAt) {
+    if (!els.menuSaveTime || !ts) return;
+    const d = new Date(ts);
+    const hh = d.getHours().toString().padStart(2, '0');
+    const mm = d.getMinutes().toString().padStart(2, '0');
+    const mo = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+    els.menuSaveTime.textContent = `${mo}/${day} ${hh}:${mm}`;
   }
 
   function spawnParticle(force = false) {
@@ -1544,6 +1716,9 @@
   function showMenu() {
     state.inMenu = true;
     if (els.mainMenu) els.mainMenu.classList.remove('hidden');
+    updateMenuSaveTime();
+    updateAudioUI();
+    updateClickToggleUI();
   }
 
   function hideMenu() {
@@ -1609,6 +1784,8 @@
 
     const gain = ctx.createGain();
     const lp = ctx.createBiquadFilter();
+    const out = ctx.createGain();
+    out.gain.value = Math.max(0, Math.min(1, state.clickVolume ?? 0.9));
     lp.type = 'lowpass';
     lp.frequency.setValueAtTime(1400, now);
     lp.frequency.exponentialRampToValueAtTime(800, now + 0.09);
@@ -1627,7 +1804,7 @@
     oscA.connect(gain);
     oscB.connect(gain);
     noise.connect(gain);
-    gain.connect(lp).connect(ctx.destination); // send directly, independent of BGM pump
+    gain.connect(lp).connect(out).connect(ctx.destination); // send directly, independent of BGM pump
 
     oscA.start(now);
     oscB.start(now);
@@ -1637,19 +1814,58 @@
     noise.stop(now + 0.07);
   }
 
+  // Lightweight "bleep & sweep" voice for UI feedback or pickups
+  function bleepsweep(ctx, { freq = 720, glide = -420, dur = 0.35, gainDb = -6, type = 'triangle' } = {}) {
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    const targetFreq = Math.max(40, freq + glide);
+    const peak = Math.pow(10, gainDb / 20);
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, now);
+    osc.frequency.exponentialRampToValueAtTime(targetFreq, now + dur);
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(peak, now + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+    osc.connect(g).connect(audioEngine.master || ctx.destination);
+    osc.start(now);
+    osc.stop(now + dur + 0.05);
+  }
+
   // --- Coded music via Web Audio ---
   function ensureAudioContext() {
     if (audioEngine.ctx) return audioEngine.ctx;
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     const master = ctx.createGain();
     const pump = ctx.createGain();
-    master.gain.value = 0.22;
+    const compressor = ctx.createDynamicsCompressor();
+    compressor.threshold.value = -10;
+    compressor.knee.value = 18;
+    compressor.ratio.value = 3;
+    compressor.attack.value = 0.003;
+    compressor.release.value = 0.25;
+    master.gain.value = (state.bgmMuted ? 0 : 0.26 * (state.bgmVolume ?? 0.8));
     pump.gain.value = 1;
-    master.connect(pump).connect(ctx.destination);
+    master.connect(pump).connect(compressor).connect(ctx.destination);
     audioEngine.ctx = ctx;
     audioEngine.master = master;
     audioEngine.pump = pump;
+    audioEngine.compressor = compressor;
     return ctx;
+  }
+
+  function applyBgmGain() {
+    ensureAudioContext();
+    if (!audioEngine.master) return;
+    const vol = Math.max(0, Math.min(1, state.bgmVolume ?? 0.8));
+    const target = state.bgmMuted ? 0 : 0.26 * vol;
+    const now = audioEngine.ctx?.currentTime || 0;
+    try {
+      audioEngine.master.gain.cancelScheduledValues(now);
+      audioEngine.master.gain.setTargetAtTime(target, now, 0.08);
+    } catch (_) {
+      audioEngine.master.gain.value = target;
+    }
   }
 
   function startBgm() {
@@ -1658,7 +1874,8 @@
       return;
     }
     const ctx = ensureAudioContext();
-    stopBgm(); // clear old loops
+    applyBgmGain();
+    stopBgm(); // clear old loops if any
     audioEngine.beatIndex = 0;
     audioEngine.chordIndex = 0;
     audioEngine.presetIndex = 0;
@@ -1671,6 +1888,8 @@
       clearInterval(audioEngine.loopId);
       audioEngine.loopId = null;
     }
+    audioEngine.beatIndex = 0;
+    audioEngine.chordIndex = 0;
   }
 
   // Minimal Tidal-like pattern expander: accepts strings of hits/rests and maps them to 32-step grids.
@@ -1691,8 +1910,9 @@
   }
 
   function scheduleLoop() {
-    // Lock music to the new TidalBloom pattern set
-    const presetIds = ['tidalBloom'];
+    // Allow selectable music patterns; fall back to tidebloom
+    const chosen = state.bgmPattern && presets[state.bgmPattern] ? state.bgmPattern : 'tidebloom';
+    const presetIds = [chosen];
     const preset = presets[presetIds[audioEngine.presetIndex % presetIds.length]];
     const secondsPerBeat = 60 / preset.tempo;
     const step = () => {
@@ -1801,8 +2021,8 @@
 
   function ensureChipCrunch(ctx) {
     if (audioEngine.chipCrunch) return audioEngine.chipCrunch;
-    // Soften the grit for a more lofi/chill bed
-    const crunch = createBitCrusher(ctx, 5, 0.22);
+    // Soften the grit further for cleaner music bed
+    const crunch = createBitCrusher(ctx, 6, 0.12);
     crunch.output.connect(audioEngine.master);
     audioEngine.chipCrunch = crunch;
     return crunch;
