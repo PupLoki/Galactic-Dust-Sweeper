@@ -242,6 +242,33 @@
       altHat: [2, 6, 10, 14, 18, 22, 26, 30],
       altHatOpen: [9, 25],
     },
+    // New tidal-inspired preset with denser percussion and brighter arp.
+    tidalBloom: {
+      tempo: 126, // more upbeat, keeps shimmer
+      // pattern strings will be expanded to 32-step grids (8 bars of 4 beats)
+      kick: 'x..x.x..x.x...x..x..x.x...x..x.',      // punchier, keeps groove
+      snare: '....x...x....x...x....x...x....',     // steady backbeat + fills
+      hat: 'x.x.x.x.x..x.x.x.x.x..x.x.x.x.',        // bright tops
+      hatOpen: '......x...x......x...x......x...',  // more lift
+      chordLengthBeats: 4,
+      chordRoots: [0, -3, -7, -10, -7, -3, -5, -2],  // minor & suspended flavors
+      altChordRoots: [-7, -5, -10, -12, -8, -5, -3, -7],
+      chords: [
+        [0, 3, 7, 10],   // m7
+        [0, 5, 9, 12],   // sus/add9
+        [0, 7, 10, 14],  // add11-ish
+        [0, 3, 8, 12],   // m6/add9 color
+      ],
+      baseFreq: 196.0,  // mellow G3 base
+      bassBeats: 'x...x...x.x...x...x.x...x...x...',    // adds walk-ups
+      bassLine: [0, -5, -10, -7, -12, -7, -5, -3],
+      altBassLine: [-12, -8, -12, -5, -10, -7, -3, -15],
+      bassBase: 49.0,   // G1 sub
+      arpSteps: [0, 7, 10, 14, 17, 21],          // softer upper color
+      altArpSteps: [0, 12, 7, 15, 19, 24],
+      altHat: 'x.x..x.x.x..x.x.x..x.x.x..x.x.',       // alternate shuffle
+      altHatOpen: '......x...x......x...x......x...',  // matching lift
+    },
   };
 
   const achievementDefs = [
@@ -1646,8 +1673,26 @@
     }
   }
 
+  // Minimal Tidal-like pattern expander: accepts strings of hits/rests and maps them to 32-step grids.
+  function patternToSteps(pattern, totalBeats) {
+    if (!pattern || typeof pattern !== 'string') return [];
+    const chars = pattern.replace(/\s+/g, '');
+    if (!chars.length) return [];
+    const step = totalBeats / chars.length;
+    const hits = [];
+    for (let i = 0; i < chars.length; i++) {
+      const ch = chars[i];
+      if (ch === 'x' || ch === 'X' || ch === 'o' || ch === 'k' || ch === 's' || ch === 'h') {
+        const pos = Math.round(i * step) % totalBeats;
+        hits.push(pos);
+      }
+    }
+    return [...new Set(hits)].sort((a, b) => a - b);
+  }
+
   function scheduleLoop() {
-    const presetIds = ['aurora', 'eclipse'];
+    // Lock music to the new TidalBloom pattern set
+    const presetIds = ['tidalBloom'];
     const preset = presets[presetIds[audioEngine.presetIndex % presetIds.length]];
     const secondsPerBeat = 60 / preset.tempo;
     const step = () => {
@@ -1658,20 +1703,27 @@
       const useAlt = (audioEngine.barCount % 8) >= 4;
       const breakdown = (audioEngine.barCount % 16) === 12; // softer last 4 bars of a 16-bar block
       const chordRoots = useAlt ? (preset.altChordRoots || preset.chordRoots) : preset.chordRoots;
-      const hatPattern = useAlt ? (preset.altHat || preset.hat) : preset.hat;
-      const hatOpenPattern = useAlt ? (preset.altHatOpen || preset.hatOpen) : preset.hatOpen;
+      const hatBase = useAlt ? (preset.altHat || preset.hat) : preset.hat;
+      const hatOpenBase = useAlt ? (preset.altHatOpen || preset.hatOpen) : preset.hatOpen;
+      const kickPattern = Array.isArray(preset.kick) ? preset.kick : patternToSteps(preset.kick, totalBeats);
+      const snarePattern = Array.isArray(preset.snare) ? preset.snare : patternToSteps(preset.snare, totalBeats);
+      const hatPattern = Array.isArray(hatBase) ? hatBase : patternToSteps(hatBase, totalBeats);
+      const hatOpenPattern = Array.isArray(hatOpenBase) ? hatOpenBase : patternToSteps(hatOpenBase, totalBeats);
       const bassLine = useAlt ? (preset.altBassLine || preset.bassLine) : preset.bassLine;
       const arpSteps = useAlt ? (preset.altArpSteps || preset.arpSteps) : preset.arpSteps;
       // Kick
-      if (preset.kick.includes(beat)) triggerDrum(ctx, 'kick', t);
+      if (kickPattern.includes(beat)) triggerDrum(ctx, 'kick', t);
       // Snare
-      if (!breakdown && preset.snare.includes(beat)) triggerDrum(ctx, 'snare', t);
+      if (!breakdown && snarePattern.includes(beat)) triggerDrum(ctx, 'snare', t);
       // Hat
       if (!breakdown && hatPattern?.includes(beat)) triggerDrum(ctx, 'hat', t);
       // Open hat on offbeats for bounce
       if (!breakdown && hatOpenPattern?.includes(beat)) triggerDrum(ctx, 'hatOpen', t);
       // Bass
-      if (preset.bassBeats.includes(beat)) {
+      const bassBeats = Array.isArray(preset.bassBeats)
+        ? preset.bassBeats
+        : patternToSteps(preset.bassBeats, totalBeats);
+      if (bassBeats.includes(beat)) {
         const note = bassLine[beat % bassLine.length];
         if (note !== null && note !== undefined) {
           const bassTime = breakdown ? t + 0.02 : t;
@@ -1749,7 +1801,8 @@
 
   function ensureChipCrunch(ctx) {
     if (audioEngine.chipCrunch) return audioEngine.chipCrunch;
-    const crunch = createBitCrusher(ctx, 5, 0.34);
+    // Soften the grit for a more lofi/chill bed
+    const crunch = createBitCrusher(ctx, 5, 0.22);
     crunch.output.connect(audioEngine.master);
     audioEngine.chipCrunch = crunch;
     return crunch;

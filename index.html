@@ -12,10 +12,21 @@
       <h1>Galactic Dust Sweeper</h1>
       <p class="menu-sub">Sweep the stars. Build your fleet. Rise through prestiges.</p>
       <p class="menu-sub">Developed By PupLoki on Github</p>
-      <div class="menu-actions">
-        <button id="menu-start-btn" class="control-btn">Start</button>
-        <button id="menu-reset-btn" class="control-btn">Reset Save</button>
+      <div class="menu-section">
+        <div class="menu-section-title">Game</div>
+        <div class="menu-actions two-col">
+          <button id="menu-start-btn" class="control-btn accent">Start</button>
+          <button id="menu-reset-btn" class="control-btn subtle">Reset Save</button>
+        </div>
       </div>
+      <div class="menu-section">
+        <div class="menu-section-title">Audio & Input</div>
+        <div class="menu-actions two-col">
+          <button id="bgm-toggle-btn" class="control-btn">BGM: On</button>
+          <button id="click-toggle-btn" class="control-btn">Click: On</button>
+        </div>
+      </div>
+      <p class="menu-hint">You can reopen this menu anytime to adjust BGM or clicks.</p>
     </div>
   </div>
   <div id="map-modal" class="overlay-menu hidden">
@@ -53,8 +64,6 @@
         <div class="stat">Auto Clicks/s: <span id="auto-cps">0</span></div>
       </div>
       <div id="header-controls">
-        <button id="bgm-toggle-btn" class="control-btn">BGM: On</button>
-        <button id="click-toggle-btn" class="control-btn">Click: On</button>
         <button id="save-btn" class="control-btn">Save</button>
         <button id="load-btn" class="control-btn">Load</button>
         <button id="menu-btn" class="control-btn">Menu</button>
